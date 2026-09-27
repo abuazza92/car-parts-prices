@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>أسعار قطع السيارات | إضافة 20%</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;color:#18212b;font-family:Tahoma,Arial,sans-serif}
+.container{max-width:1150px;margin:25px auto;padding:0 15px}
+.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 6px 25px rgba(0,0,0,.07)}
+h1{margin:0 0 8px;font-size:28px}
+h2{margin-top:0}
+.desc{color:#68737e;line-height:1.8}
+textarea{width:100%;min-height:310px;border:1px solid #cbd4dc;border-radius:12px;padding:15px;font-size:16px;line-height:1.9;resize:vertical;outline:none}
+textarea:focus,input:focus{border-color:#1769e0}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+label{display:flex;align-items:center;gap:7px}
+input{width:90px;border:1px solid #cbd4dc;border-radius:9px;padding:10px;font-size:15px}
+button{border:0;border-radius:10px;padding:11px 17px;font-size:15px;cursor:pointer}
+.primary{background:#1769e0;color:#fff}.secondary{background:#e9eef4;color:#18212b}
+.status{margin-top:12px;color:#68737e;line-height:1.7}
+.success{color:#087443}.error{color:#b42318}
+.rules{background:#f7f9fb;border-right:4px solid #1769e0;padding:13px 15px;border-radius:8px;margin-top:15px;line-height:1.9;font-size:14px}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{padding:12px;border-bottom:1px solid #e5e9ed;text-align:center}
+th{background:#f0f3f6}
+.total{font-weight:bold;background:#f7f9fb}
+.empty{text-align:center;color:#78838d;padding:30px}
+.footer{text-align:center;color:#7b858e;font-size:13px;padding:5px 0 25px}
+@media(max-width:650px){h1{font-size:23px}.card{padding:16px}table{font-size:13px}th,td{padding:8px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="card">
+<h1>🚗 أسعار قطع السيارات</h1>
+<div class="desc">
+ألصق النص كما وصلك من المورد أو الفاتورة. البرنامج يستخرج <b>رقم القطعة والسعر فقط</b> ثم يضيف النسبة المحددة.
+</div>
+
+<textarea id="input" placeholder="مثال:
+مازدا سي اكس 9 2020
+JM5TCAWY5L0407645
+
+ظفيرة حساسات خلفيه
+TA0A67290=155
+ماصوره شكمان خلفي وسط
+PYJ22055XB=2085
+--------------"></textarea>
+
+<div class="controls">
+<label>نسبة الزيادة:
+<input id="markup" type="number" value="20" step="0.1" min="0">
+%</label>
+<button class="primary" onclick="processText()">استخراج الأسعار</button>
+<button class="secondary" onclick="copyResults()">نسخ النتائج</button>
+<button class="secondary" onclick="downloadCSV()">تحميل CSV</button>
+<button class="secondary" onclick="clearAll()">مسح</button>
+</div>
+
+<div class="rules">
+<b>طريقة العمل:</b>
+يتجاهل اسم السيارة والموديل ورقم الهيكل ووصف القطعة والكمية والخصم والتكلفة النهائية.
+في النصوص التفصيلية مثل الفواتير، يبحث عن <b>رقم المرجع للقطعة</b> ثم يأخذ <b>القيمة</b> التابعة له.
+وفي القوائم المختصرة يقبل صيغ مثل <b>6410D529XA = 432</b>.
+</div>
+<div id="status" class="status"></div>
+</div>
+
+<div class="card">
+<h2>النتائج</h2>
+<table>
+<thead>
+<tr><th>#</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>قيمة الزيادة</th><th>السعر النهائي</th></tr>
+</thead>
+<tbody id="results">
+<tr><td colspan="5" class="empty">ألصق النص واضغط «استخراج الأسعار»</td></tr>
+</tbody>
+<tfoot id="tfoot"></tfoot>
+</table>
+</div>
+
+<div class="footer">حاسبة أسعار قطع السيارات — تعمل بالكامل داخل المتصفح</div>
+</div>
+
+<script>
+let rows=[];
+
+const $=id=>document.getElementById(id);
+
+function normalizeDigits(s){
+ const ar='٠١٢٣٤٥٦٧٨٩', fa='۰۱۲۳۴۵۶۷۸۹';
+ return s.replace(/[٠-٩]/g,c=>ar.indexOf(c))
+         .replace(/[۰-۹]/g,c=>fa.indexOf(c));
+}
+function cleanNumber(s){return Number(String(s).replace(/,/g,'.'))}
+function money(n){
+ return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function esc(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+ }[c]));
+}
+
+/*
+ قواعد الاستخراج:
+ 1) صيغة مختصرة:
+    PART = PRICE
+    PART : PRICE
+    PART - PRICE
+    PART السعر PRICE
+ 2) صيغة الفاتورة:
+    رقم المرجع للقطعة:
+    PART
+    الكمية:
+    1
+    القيمة:
+    PRICE
+    ...
+    أو علامة = ثم التكلفة النهائية.
+    هنا نأخذ "القيمة" فقط.
+ 3) لا نستخدم آخر رقم في السطر بشكل عام.
+*/
+
+function looksLikePart(s){
+ s=s.trim();
+ if(!s) return false;
+ // رقم هيكل VIN غالباً 17 خانة أبجدية رقمية
+ if(/^[A-HJ-NPR-Z0-9]{17}$/i.test(s)) return false;
+ // السنة أو كمية أو رقم منفرد
+ if(/^\d{1,6}$/.test(s)) return false;
+ // رقم قطعة يجب أن يحتوي رقماً، وغالباً أحرف أو فاصل
+ if(!/\d/.test(s)) return false;
+ if(!/[A-Za-z]/.test(s) && !/[._\/-]/.test(s)) return false;
+ return true;
+}
+
+function extractStructured(lines){
+ let found=[];
+ for(let i=0;i<lines.length;i++){
+   let line=lines[i].trim();
+
+   // "رقم المرجع للقطعة:" ثم رقم القطعة في السطر التالي
+   if(/^(رقم\s*المرجع\s*للقطعة|مرجع\s*القطعة|رقم\s*القطعة)\s*:?\s*$/i.test(line)){
+      let part=null;
+      for(let j=i+1;j<Math.min(i+5,lines.length);j++){
+        let candidate=lines[j].trim();
+        if(looksLikePart(candidate)){part=candidate; i=j; break;}
+      }
+      if(!part) continue;
+
+      // ابحث بعد رقم القطعة عن "القيمة" ضمن هذا البند، وليس "التكلفة النهائية"
+      let price=null;
+      for(let j=i+1;j<Math.min(i+12,lines.length);j++){
+        let x=lines[j].trim();
+        if(/^(القيمة|قيمة)\s*:?\s*$/i.test(x)){
+          for(let k=j+1;k<Math.min(j+3,lines.length);k++){
+            let pm=normalizeDigits(lines[k]).match(/^([0-9]+(?:[.,][0-9]+)?)\s*(?:ريال|ر\.س|SAR|SR)?$/i);
+            if(pm){price=cleanNumber(pm[1]);break;}
+          }
+          break;
+        }
+        // إذا بدأ بند جديد، توقف
+        if(/^(رقم\s*المرجع\s*للقطعة|مرجع\s*القطعة|رقم\s*القطعة)\s*:?\s*$/i.test(x)) break;
+      }
+      if(price!==null) found.push({part,price});
+   }
+ }
+ return found;
+}
+
+function extractInline(lines){
+ let found=[];
+ const partPattern='([A-Za-z0-9][A-Za-z0-9._/-]{2,})';
+
+ for(const raw of lines){
+   const line=normalizeDigits(raw.trim());
+   if(!line) continue;
+
+   // صيغ: PART = 432 / PART : 432 / PART - 432
+   let rx=new RegExp('^\\s*'+partPattern+'\\s*(?:=|:|[-–—])\\s*([0-9]+(?:[.,][0-9]{1,2})?)\\s*(?:ريال|ر\\.س|SAR|SR)?\\s*$','i');
+   let m=line.match(rx);
+   if(m && looksLikePart(m[1])){
+      found.push({part:m[1],price:cleanNumber(m[2])});
+      continue;
+   }
+
+   // صيغ: PART السعر 432 / PART price 432
+   rx=new RegExp('^\\s*'+partPattern+'\\s+(?:السعر|سعر|price)\\s*[:=\\-]?\\s*([0-9]+(?:[.,][0-9]{1,2})?)\\s*(?:ريال|ر\\.س|SAR|SR)?\\s*$','i');
+   m=line.match(rx);
+   if(m && looksLikePart(m[1])){
+      found.push({part:m[1],price:cleanNumber(m[2])});
+   }
+ }
+ return found;
+}
+
+function processText(){
+ const text=normalizeDigits($('input').value);
+ const pct=Number($('markup').value);
+ const rate=Number.isFinite(pct)?pct:20;
+ const lines=text.split(/\r?\n/);
+
+ // structured invoices first
+ const structured=extractStructured(lines);
+ const inline=extractInline(lines);
+
+ // Deduplicate by part number, preferring structured "القيمة"
+ const map=new Map();
+ for(const x of inline) map.set(x.part.toUpperCase(),x);
+ for(const x of structured) map.set(x.part.toUpperCase(),x);
+
+ rows=[];
+ for(const x of map.values()){
+   const increase=x.price*rate/100;
+   rows.push({
+     part:x.part,
+     original:x.price,
+     increase,
+     final:x.price+increase
+   });
+ }
+
+ render();
+
+ if(rows.length){
+   $('status').className='status success';
+   $('status').textContent=
+    `تم استخراج ${rows.length} قطعة. تم تطبيق زيادة ${rate}% على السعر الأصلي فقط. تم تجاهل الموديل ورقم الهيكل والكمية والخصم والتكلفة النهائية.`;
+ }else{
+   $('status').className='status error';
+   $('status').textContent='لم أجد أرقام قطع مرتبطة بسعر واضح. تأكد من وجود رقم القطعة مع السعر أو وجود "القيمة" بعد رقم المرجع للقطعة.';
+ }
+}
+
+function render(){
+ if(!rows.length){
+  $('results').innerHTML='<tr><td colspan="5" class="empty">لا توجد نتائج</td></tr>';
+  $('tfoot').innerHTML='';
+  return;
+ }
+
+ $('results').innerHTML=rows.map((r,i)=>`
+ <tr>
+  <td>${i+1}</td>
+  <td><b>${esc(r.part)}</b></td>
+  <td>${money(r.original)}</td>
+  <td>${money(r.increase)}</td>
+  <td><b>${money(r.final)}</b></td>
+ </tr>`).join('');
+
+ const totalOriginal=rows.reduce((a,r)=>a+r.original,0);
+ const totalIncrease=rows.reduce((a,r)=>a+r.increase,0);
+ const totalFinal=rows.reduce((a,r)=>a+r.final,0);
+
+ $('tfoot').innerHTML=`
+ <tr class="total">
+  <td colspan="2">الإجمالي</td>
+  <td>${money(totalOriginal)}</td>
+  <td>${money(totalIncrease)}</td>
+  <td>${money(totalFinal)}</td>
+ </tr>`;
+}
+
+async function copyResults(){
+ if(!rows.length){$('status').textContent='لا توجد نتائج لنسخها.';return;}
+ const text=rows.map(r=>`${r.part}\t${r.original}\t${r.increase}\t${r.final}`).join('\n');
+ await navigator.clipboard.writeText(text);
+ $('status').className='status success';
+ $('status').textContent='تم نسخ النتائج.';
+}
+
+function downloadCSV(){
+ if(!rows.length){$('status').textContent='لا توجد نتائج لتحميلها.';return;}
+ let csv='\uFEFFرقم القطعة,السعر الأصلي,قيمة الزيادة,السعر النهائي\n';
+ rows.forEach(r=>{
+  csv+=`"${r.part}","${r.original}","${r.increase}","${r.final}"\n`;
+ });
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='اسعار_قطع_السيارات.csv';
+ a.click();
+}
+
+function clearAll(){
+ $('input').value='';
+ $('markup').value='20';
+ rows=[];
+ render();
+ $('status').className='status';
+ $('status').textContent='';
+}
+</script>
+</body>
+</html>
