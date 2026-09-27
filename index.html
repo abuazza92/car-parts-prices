@@ -12,6 +12,7 @@ body{margin:0;background:#f4f6f8;color:#18212b;font-family:Tahoma,Arial,sans-ser
 h1{margin:0 0 8px;font-size:28px}
 h2{margin-top:0}
 .desc{color:#68737e;line-height:1.8}
+.dhikr{margin:2px 0 14px;font-weight:bold;color:#1769e0;line-height:1.9}
 textarea{width:100%;min-height:310px;border:1px solid #cbd4dc;border-radius:12px;padding:15px;font-size:16px;line-height:1.9;resize:vertical;outline:none}
 textarea:focus,input:focus{border-color:#1769e0}
 .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
@@ -36,19 +37,12 @@ th{background:#f0f3f6}
 
 <div class="card">
 <h1>🚗 أسعار قطع السيارات</h1>
+<div class="dhikr">سبحان الله والحمدلله ولا اله الا الله والله اكبر ولا حول ولا قوة الا بالله</div>
 <div class="desc">
 ألصق النص كما وصلك من المورد أو الفاتورة. البرنامج يستخرج <b>رقم القطعة والسعر فقط</b> ثم يضيف النسبة المحددة.
 </div>
 
-<textarea id="input" placeholder="مثال:
-مازدا سي اكس 9 2020
-JM5TCAWY5L0407645
-
-ظفيرة حساسات خلفيه
-TA0A67290=155
-ماصوره شكمان خلفي وسط
-PYJ22055XB=2085
---------------"></textarea>
+<textarea id="input" placeholder="ألصق نص المورد أو الفاتورة هنا..."></textarea>
 
 <div class="controls">
 <label>نسبة الزيادة:
@@ -73,10 +67,10 @@ PYJ22055XB=2085
 <h2>النتائج</h2>
 <table>
 <thead>
-<tr><th>#</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>قيمة الزيادة</th><th>السعر النهائي</th></tr>
+<tr><th>#</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>السعر مع الزيادة</th></tr>
 </thead>
 <tbody id="results">
-<tr><td colspan="5" class="empty">ألصق النص واضغط «استخراج الأسعار»</td></tr>
+<tr><td colspan="4" class="empty">ألصق النص واضغط «استخراج الأسعار»</td></tr>
 </tbody>
 <tfoot id="tfoot"></tfoot>
 </table>
@@ -238,7 +232,7 @@ function processText(){
 
 function render(){
  if(!rows.length){
-  $('results').innerHTML='<tr><td colspan="5" class="empty">لا توجد نتائج</td></tr>';
+  $('results').innerHTML='<tr><td colspan="4" class="empty">لا توجد نتائج</td></tr>';
   $('tfoot').innerHTML='';
   return;
  }
@@ -248,26 +242,15 @@ function render(){
   <td>${i+1}</td>
   <td><b>${esc(r.part)}</b></td>
   <td>${money(r.original)}</td>
-  <td>${money(r.increase)}</td>
   <td><b>${money(r.final)}</b></td>
  </tr>`).join('');
 
- const totalOriginal=rows.reduce((a,r)=>a+r.original,0);
- const totalIncrease=rows.reduce((a,r)=>a+r.increase,0);
- const totalFinal=rows.reduce((a,r)=>a+r.final,0);
-
- $('tfoot').innerHTML=`
- <tr class="total">
-  <td colspan="2">الإجمالي</td>
-  <td>${money(totalOriginal)}</td>
-  <td>${money(totalIncrease)}</td>
-  <td>${money(totalFinal)}</td>
- </tr>`;
+ $('tfoot').innerHTML='';
 }
 
 async function copyResults(){
  if(!rows.length){$('status').textContent='لا توجد نتائج لنسخها.';return;}
- const text=rows.map(r=>`${r.part}\t${r.original}\t${r.increase}\t${r.final}`).join('\n');
+ const text=rows.map(r=>`${r.part}\t${r.original}\t${r.final}`).join('\n');
  await navigator.clipboard.writeText(text);
  $('status').className='status success';
  $('status').textContent='تم نسخ النتائج.';
@@ -275,9 +258,9 @@ async function copyResults(){
 
 function downloadCSV(){
  if(!rows.length){$('status').textContent='لا توجد نتائج لتحميلها.';return;}
- let csv='\uFEFFرقم القطعة,السعر الأصلي,قيمة الزيادة,السعر النهائي\n';
+ let csv='\uFEFFرقم القطعة,السعر الأصلي,السعر مع الزيادة\n';
  rows.forEach(r=>{
-  csv+=`"${r.part}","${r.original}","${r.increase}","${r.final}"\n`;
+  csv+=`"${r.part}","${r.original}","${r.final}"\n`;
  });
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
  const a=document.createElement('a');
