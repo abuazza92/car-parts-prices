@@ -2,281 +2,283 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>أسعار قطع السيارات | إضافة 20%</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>إدارة قطع السيارات</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f4f6f8;color:#18212b;font-family:Tahoma,Arial,sans-serif}
-.container{max-width:1150px;margin:25px auto;padding:0 15px}
-.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 6px 25px rgba(0,0,0,.07)}
-h1{margin:0 0 8px;font-size:28px}
-h2{margin-top:0}
-.desc{color:#68737e;line-height:1.8}
-.dhikr{margin:2px 0 14px;font-weight:bold;color:#1769e0;line-height:1.9}
-textarea{width:100%;min-height:310px;border:1px solid #cbd4dc;border-radius:12px;padding:15px;font-size:16px;line-height:1.9;resize:vertical;outline:none}
-textarea:focus,input:focus{border-color:#1769e0}
-.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
-label{display:flex;align-items:center;gap:7px}
-input{width:90px;border:1px solid #cbd4dc;border-radius:9px;padding:10px;font-size:15px}
-button{border:0;border-radius:10px;padding:11px 17px;font-size:15px;cursor:pointer}
-.primary{background:#1769e0;color:#fff}.secondary{background:#e9eef4;color:#18212b}
-.status{margin-top:12px;color:#68737e;line-height:1.7}
-.success{color:#087443}.error{color:#b42318}
-.rules{background:#f7f9fb;border-right:4px solid #1769e0;padding:13px 15px;border-radius:8px;margin-top:15px;line-height:1.9;font-size:14px}
-table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{padding:12px;border-bottom:1px solid #e5e9ed;text-align:center}
-th{background:#f0f3f6}
-.total{font-weight:bold;background:#f7f9fb}
-.empty{text-align:center;color:#78838d;padding:30px}
-.footer{text-align:center;color:#7b858e;font-size:13px;padding:5px 0 25px}
-@media(max-width:650px){h1{font-size:23px}.card{padding:16px}table{font-size:13px}th,td{padding:8px}}
+:root{--nav:#142235;--blue:#1769e0;--blue2:#0d5bd4;--bg:#f4f7fb;--card:#fff;--text:#17202a;--muted:#697586;--line:#e5eaf0;--green:#159957;--red:#c62828;--orange:#ef9b00}
+*{box-sizing:border-box}html,body{margin:0;font-family:Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#122033,#2b415b)}
+.login-card{width:min(430px,100%);background:#fff;border-radius:24px;padding:34px;box-shadow:0 25px 70px #0005}
+.login-logo{width:68px;height:68px;margin:auto auto 16px;border-radius:20px;background:var(--nav);color:#fff;display:flex;align-items:center;justify-content:center;font-size:31px;font-weight:900}
+.login-card h1{text-align:center;margin:0 0 7px}.login-card p{text-align:center;color:var(--muted);margin:0 0 22px}.dhikr{text-align:center;color:var(--blue);font-weight:700;line-height:1.8;margin:-10px 0 22px}
+.field{margin-bottom:13px}.field label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field input,.field textarea,.field select{width:100%;padding:12px;border:1px solid #d6dee8;border-radius:11px;background:#fff;outline:0}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1769e01a}
+.primary{border:0;background:var(--blue);color:#fff;padding:11px 16px;border-radius:10px;font-weight:800}.primary:hover{background:var(--blue2)}.secondary{border:0;background:#eef2f6;color:#263238;padding:11px 16px;border-radius:10px;font-weight:700}.danger{border:0;background:#c62828;color:#fff;padding:9px 12px;border-radius:9px}.success{border:0;background:var(--green);color:#fff;padding:10px 14px;border-radius:9px}.warning{border:0;background:#fff3d6;color:#805500;padding:10px 14px;border-radius:9px}.error{display:none;color:#a90000;background:#ffeded;padding:10px;border-radius:9px;margin-bottom:12px}
+#app{display:none}.shell{min-height:100vh}.sidebar{position:fixed;right:0;top:0;bottom:0;width:260px;background:var(--nav);color:#fff;padding:18px;z-index:20}.brand{font-size:20px;font-weight:900;padding:8px 4px 18px}.brand small{display:block;font-size:11px;color:#aab8c8;margin-top:5px;font-weight:500}.nav button{display:block;width:100%;border:0;background:transparent;color:#dbe4ee;text-align:right;padding:12px 13px;border-radius:10px;margin:4px 0}.nav button:hover,.nav button.active{background:#ffffff16;color:#fff}.bottom{position:absolute;bottom:16px;left:18px;right:18px}.userbox{background:#ffffff0d;padding:10px;border-radius:10px;font-size:12px;margin-bottom:8px}.logout{width:100%;border:0;background:#b71c1c;color:#fff;padding:10px;border-radius:9px}
+.main{margin-right:260px}.top{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}.menu{display:none;border:0;background:transparent;font-size:25px}.content{padding:22px}.screen{display:none}.screen.active{display:block}.title{margin:0 0 5px;font-size:27px}.subtitle{margin:0;color:var(--muted)}.dhikr-main{color:var(--blue);font-weight:800;margin:8px 0 18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.card .label{color:var(--muted);font-size:13px}.card .num{font-size:28px;font-weight:900;margin-top:9px}.card.click{cursor:pointer}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.panel h3{margin-top:0}.method{line-height:2;color:#4d5968}.method b{color:var(--text)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions .primary{width:auto}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px 8px;border-bottom:1px solid #edf0f4;text-align:right;white-space:nowrap}.table th{background:#f8fafc}.table input.cell{padding:7px;border:1px solid #d8dee7;border-radius:7px;min-width:120px}.empty{text-align:center;color:#7b8794;padding:30px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:13px}.toolbar input{flex:1;min-width:220px;padding:11px;border:1px solid #d8dee7;border-radius:10px}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#eef5ff;color:var(--blue);font-size:12px}.green{color:var(--green);font-weight:900}.red{color:var(--red)}
+.extract-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:15px}.extract-box textarea{min-height:360px}.price-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}.price-grid input{padding:11px;border:1px solid #d8dee7;border-radius:10px;width:100%}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18212b;color:#fff;padding:11px 17px;border-radius:10px;z-index:1000}
+@media(max-width:1000px){.sidebar{transform:translateX(100%);transition:.2s}.sidebar.open{transform:translateX(0)}.main{margin-right:0}.menu{display:block}.cards{grid-template-columns:repeat(2,1fr)}.extract-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.content{padding:13px}.cards,.grid2,.form-grid,.price-grid{grid-template-columns:1fr}.top{padding:0 13px}.title{font-size:23px}.cards{gap:9px}}
+@media print{.sidebar,.top,.actions,.toolbar,#loginScreen{display:none!important}.main{margin:0}.screen{display:none!important}.screen.active{display:block!important}.panel,.card{border:0}}
 </style>
 </head>
 <body>
-<div class="container">
 
-<div class="card">
-<h1>🚗 أسعار قطع السيارات</h1>
-<div class="dhikr">سبحان الله والحمدلله ولا اله الا الله والله اكبر ولا حول ولا قوة الا بالله</div>
-<div class="desc">
-ألصق النص كما وصلك من المورد أو الفاتورة. البرنامج يستخرج <b>رقم القطعة والسعر فقط</b> ثم يضيف النسبة المحددة.
+<div id="loginScreen" class="auth">
+  <div class="login-card">
+    <div class="login-logo">ق</div>
+    <h1>إدارة قطع السيارات</h1>
+    <p>تسجيل الدخول إلى النظام</p>
+    <div class="dhikr">سبحان الله والحمدلله ولا اله الا الله والله اكبر<br>ولا حول ولا قوة الا بالله</div>
+    <div id="loginError" class="error"></div>
+    <form id="loginForm">
+      <div class="field"><label>اسم المستخدم</label><input id="loginUsername" autocomplete="username" required></div>
+      <div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+      <button class="primary" style="width:100%" type="submit">دخول</button>
+    </form>
+  </div>
 </div>
 
-<textarea id="input" placeholder="ألصق نص المورد أو الفاتورة هنا..."></textarea>
+<div id="app">
+<aside id="sidebar" class="sidebar">
+  <div class="brand">إدارة قطع السيارات<small>نظام إدارة وتسعير قطع السيارات</small></div>
+  <nav class="nav">
+    <button data-screen="dashboard" class="active">🏠 الرئيسية</button>
+    <button data-screen="search">🔎 البحث عن قطعة</button>
+    <button data-screen="extract">✨ الاستخراج الذكي</button>
+    <button data-screen="parts">🗂️ قاعدة القطع</button>
+    <button data-screen="add">➕ إضافة قطعة</button>
+    <button data-screen="pricing">💰 التسعير والزيادة</button>
+    <button data-screen="users" id="usersNav">👥 المستخدمون</button>
+  </nav>
+  <div class="bottom"><div class="userbox">المستخدم الحالي: <b id="sideUser"></b></div><button id="logout" class="logout">تسجيل الخروج</button></div>
+</aside>
 
-<div class="controls">
-<label>نسبة الزيادة:
-<input id="markup" type="number" value="20" step="0.1" min="0">
-%</label>
-<button class="primary" onclick="processText()">استخراج الأسعار</button>
-<button class="secondary" onclick="copyResults()">نسخ النتائج</button>
-<button class="secondary" onclick="downloadCSV()">تحميل CSV</button>
-<button class="secondary" onclick="clearAll()">مسح</button>
-</div>
+<main class="main">
+<header class="top"><button id="menu" class="menu">☰</button><strong>نظام إدارة وتسعير قطع السيارات</strong><span id="topUser" class="subtitle"></span></header>
+<div class="content">
 
-<div class="rules">
-<b>طريقة العمل:</b>
-يتجاهل اسم السيارة والموديل ورقم الهيكل ووصف القطعة والكمية والخصم والتكلفة النهائية.
-في النصوص التفصيلية مثل الفواتير، يبحث عن <b>رقم المرجع للقطعة</b> ثم يأخذ <b>القيمة</b> التابعة له.
-وفي القوائم المختصرة يقبل صيغ مثل <b>6410D529XA = 432</b>.
-</div>
-<div id="status" class="status"></div>
-</div>
+<section id="dashboard" class="screen active">
+  <h1 class="title">الرئيسية</h1>
+  <p class="subtitle">لوحة التحكم</p>
+  <div class="dhikr-main">سبحان الله والحمدلله ولا اله الا الله والله اكبر ولا حول ولا قوة الا بالله</div>
+  <div class="cards">
+    <div class="card click" data-go="pricing"><div class="label">نسبة الزيادة الحالية</div><div id="dashPct" class="num">20%</div></div>
+    <div class="card"><div class="label">إجمالي سجلات القطع</div><div id="dashParts" class="num">0</div></div>
+    <div class="card"><div class="label">إجمالي الكمية</div><div id="dashQty" class="num">0</div></div>
+    <div class="card"><div class="label">عدد المستخدمين</div><div id="dashUsers" class="num">0</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>طريقة العمل</h3>
+      <div class="method">
+        <b>1.</b> ألصق نص الفاتورة أو التسعيرة في «الاستخراج الذكي».<br>
+        <b>2.</b> يستخرج النظام رقم القطعة والسعر الأصلي ويتجاهل رقم الشاصي والكمية والخصم والتكلفة النهائية.<br>
+        <b>3.</b> حدد نسبة الزيادة التي تريدها.<br>
+        <b>4.</b> راجع النتائج، عدّل أو احذف ما يلزم، ثم انسخها أو اطبعها أو احفظها في قاعدة القطع.
+      </div>
+    </div>
+    <div class="panel">
+      <h3>آخر عمليات الاستخراج</h3>
+      <div class="table-wrap"><table class="table"><thead><tr><th>رقم القطعة</th><th>الأصلي</th><th>مع الزيادة</th></tr></thead><tbody id="recentRows"></tbody></table></div>
+    </div>
+  </div>
+</section>
 
-<div class="card">
-<h2>النتائج</h2>
-<table>
-<thead>
-<tr><th>#</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>السعر مع الزيادة</th></tr>
-</thead>
-<tbody id="results">
-<tr><td colspan="4" class="empty">ألصق النص واضغط «استخراج الأسعار»</td></tr>
-</tbody>
-<tfoot id="tfoot"></tfoot>
-</table>
-</div>
+<section id="search" class="screen">
+  <h1 class="title">البحث عن قطعة</h1><p class="subtitle">ابحث برقم القطعة أو الاسم أو الماركة أو السيارة.</p>
+  <div class="panel">
+    <div class="toolbar"><input id="globalSearch" placeholder="اكتب كلمة البحث..."><button class="secondary" id="clearSearch">مسح</button></div>
+    <div id="globalEmpty" class="empty">اكتب كلمة للبحث.</div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>#</th><th>رقم القطعة</th><th>الاسم</th><th>السيارة</th><th>الكمية</th><th>السعر الأصلي</th><th>السعر مع الزيادة</th></tr></thead><tbody id="globalRows"></tbody></table></div>
+  </div>
+</section>
 
-<div class="footer">حاسبة أسعار قطع السيارات — تعمل بالكامل داخل المتصفح</div>
+<section id="extract" class="screen">
+  <h1 class="title">الاستخراج الذكي</h1><p class="subtitle">الصق نص الفاتورة أو التسعيرة، وسيتم استخراج أرقام القطع والأسعار فقط.</p>
+  <div class="extract-grid">
+    <div class="panel extract-box">
+      <h3>نص الفاتورة</h3>
+      <textarea id="sourceText" placeholder="ألصق النص هنا..."></textarea>
+      <div class="price-grid" style="margin-top:10px">
+        <input id="carTitle" placeholder="اسم السيارة / الموديل (اختياري)">
+        <input id="extractPct" type="number" min="0" step="0.1" value="20" placeholder="نسبة الزيادة %">
+        <input id="extractSearch" placeholder="تصفية النتائج">
+      </div>
+      <div class="actions">
+        <button class="primary" id="extractBtn">استخراج الأسعار</button>
+        <button class="secondary" id="clearExtract">مسح</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>النتائج</h3>
+      <div class="toolbar">
+        <button class="success" id="copyResults">نسخ النتائج</button>
+        <button class="success" id="copyWhatsapp">نسخ للواتساب</button>
+        <button class="secondary" id="downloadCsv">تحميل CSV</button>
+        <button class="secondary" id="printResults">طباعة</button>
+        <button class="danger" id="deleteAllResults">حذف الكل</button>
+      </div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>#</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>السعر مع الزيادة</th><th>إجراء</th></tr></thead><tbody id="extractRows"></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="parts" class="screen">
+  <h1 class="title">قاعدة القطع</h1><p class="subtitle">إدارة القطع المحفوظة وتعديلها أو حذفها.</p>
+  <div class="panel">
+    <div class="toolbar"><input id="partsSearch" placeholder="بحث داخل قاعدة القطع..."><button class="primary" data-go="add">إضافة قطعة</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>#</th><th>رقم القطعة</th><th>الاسم</th><th>الماركة</th><th>السيارة</th><th>السنة</th><th>الكمية</th><th>الأصلي</th><th>مع الزيادة</th><th>إجراء</th></tr></thead><tbody id="partsRows"></tbody></table></div>
+    <div id="partsEmpty" class="empty">لا توجد قطع محفوظة.</div>
+  </div>
+</section>
+
+<section id="add" class="screen">
+  <h1 id="formTitle" class="title">إضافة قطعة</h1>
+  <div class="panel">
+    <form id="partForm">
+      <input id="editId" type="hidden">
+      <div class="form-grid">
+        <div class="field"><label>رقم القطعة *</label><input id="partNo" required></div>
+        <div class="field"><label>اسم القطعة</label><input id="partName"></div>
+        <div class="field"><label>الماركة</label><input id="brand"></div>
+        <div class="field"><label>السيارة</label><input id="car"></div>
+        <div class="field"><label>الموديل</label><input id="model"></div>
+        <div class="field"><label>السنة</label><input id="year"></div>
+        <div class="field"><label>الكمية</label><input id="qty" type="number" min="0" value="1"></div>
+        <div class="field"><label>السعر الأصلي</label><input id="cost" inputmode="decimal" required></div>
+        <div class="field"><label>الأرقام البديلة</label><input id="alt"></div>
+        <div class="field"><label>الموقع</label><input id="location"></div>
+        <div class="field full"><label>ملاحظات</label><textarea id="notes" rows="3"></textarea></div>
+      </div>
+      <div class="actions"><button class="primary" type="submit">حفظ القطعة</button><button class="secondary" id="cancelEdit" type="button">إلغاء</button></div>
+    </form>
+  </div>
+</section>
+
+<section id="pricing" class="screen">
+  <h1 class="title">التسعير والزيادة</h1>
+  <p class="subtitle">حدد نسبة الزيادة الافتراضية، ويمكن تغييرها أيضًا داخل شاشة الاستخراج لكل عملية.</p>
+  <div class="panel">
+    <div class="form-grid">
+      <div class="field"><label>نسبة الزيادة الافتراضية (%)</label><input id="defaultPct" type="number" min="0" step="0.1"></div>
+      <div class="field"><label>مثال</label><input id="priceExample" readonly></div>
+    </div>
+    <div class="actions"><button class="primary" id="savePct">حفظ الإعداد</button><button class="secondary" id="applyAll">تطبيق النسبة على كل السجلات</button></div>
+  </div>
+</section>
+
+<section id="users" class="screen">
+  <h1 class="title">المستخدمون</h1>
+  <div class="panel">
+    <h3>إضافة مستخدم</h3>
+    <form id="userForm"><div class="form-grid">
+      <div class="field"><label>اسم المستخدم</label><input id="newUser" required></div>
+      <div class="field"><label>كلمة المرور</label><input id="newPass" required></div>
+      <div class="field"><label>الاسم الظاهر</label><input id="newDisplay"></div>
+      <div class="field"><label>الصلاحية</label><select id="newRole"><option value="user">مستخدم</option><option value="admin">مدير</option></select></div>
+    </div><div class="actions"><button class="primary">إضافة مستخدم</button></div></form>
+  </div>
+  <div class="panel"><div class="table-wrap"><table class="table"><thead><tr><th>اسم المستخدم</th><th>الاسم</th><th>الصلاحية</th><th>إجراء</th></tr></thead><tbody id="usersRows"></tbody></table></div></div>
+</section>
+
+</div></main></div>
 </div>
 
 <script>
-let rows=[];
-
+const KEY='carPartsUnifiedV2';
+const DEFAULT_USER={id:'admin',username:'Abuazza',password:'Qwer1992',display:'أبو عزة',role:'admin'};
 const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const num=s=>{s=String(s??'').replace(/,/g,'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));let m=s.match(/-?\d+(?:\.\d+)?/);return m?Number(m[0]):NaN};
+const money=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
+let state=load();
+state.parts=Array.isArray(state.parts)?state.parts:[];
+state.users=Array.isArray(state.users)&&state.users.length?state.users:[DEFAULT_USER];
+state.pct=Number.isFinite(Number(state.pct))?Number(state.pct):20;
+state.recent=Array.isArray(state.recent)?state.recent:[];
+function toast(t){const x=document.createElement('div');x.className='toast';x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),1700)}
+function go(id){if(id==='users' && current()?.role!=='admin')return;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));$('sidebar').classList.remove('open');renderAll()}
+function current(){try{return JSON.parse(sessionStorage.getItem('carPartsSession')||'null')}catch{return null}}
+function setSession(u){sessionStorage.setItem('carPartsSession',JSON.stringify({id:u.id,username:u.username,display:u.display,role:u.role}))}
+function auth(){const s=current();$('loginScreen').style.display=s?'none':'flex';$('app').style.display=s?'block':'none';if(s){$('sideUser').textContent=s.display||s.username;$('topUser').textContent=s.display||s.username;$('usersNav').style.display=s.role==='admin'?'block':'none';renderAll()}}
+$('loginForm').onsubmit=e=>{e.preventDefault();const u=$('loginUsername').value.trim(),p=$('loginPassword').value;const found=state.users.find(x=>x.username===u&&x.password===p);if(!found){$('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';$('loginError').style.display='block';return} $('loginError').style.display='none';setSession(found);$('loginForm').reset();auth()};
+$('logout').onclick=()=>{sessionStorage.removeItem('carPartsSession');auth()};
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.screen));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('menu').onclick=()=>$('sidebar').classList.toggle('open');
 
-function normalizeDigits(s){
- const ar='٠١٢٣٤٥٦٧٨٩', fa='۰۱۲۳۴۵۶۷۸۹';
- return s.replace(/[٠-٩]/g,c=>ar.indexOf(c))
-         .replace(/[۰-۹]/g,c=>fa.indexOf(c));
+function sale(cost,pct=state.pct){const n=num(cost);return Number.isFinite(n)?n*(1+Number(pct||0)/100):0}
+function dash(){ $('dashPct').textContent=state.pct+'%';$('dashParts').textContent=state.parts.length;$('dashQty').textContent=state.parts.reduce((a,x)=>a+(Number(x.qty)||0),0);$('dashUsers').textContent=state.users.length;
+$('recentRows').innerHTML=state.recent.slice(0,6).map(r=>`<tr><td>${esc(r.part)}</td><td>${money(r.original)}</td><td class="green">${money(r.final)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">لا توجد عمليات بعد.</td></tr>'}
+function renderParts(){
+ const f=($('partsSearch').value||'').toLowerCase().trim(),arr=state.parts.filter(x=>!f||JSON.stringify(x).toLowerCase().includes(f));
+ $('partsRows').innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td><b>${esc(x.part)}</b></td><td>${esc(x.name)}</td><td>${esc(x.brand)}</td><td>${esc(x.car)} ${esc(x.model)}</td><td>${esc(x.year)}</td><td>${x.qty}</td><td>${money(x.original)}</td><td class="green">${money(sale(x.original,x.pct??state.pct))}</td><td><button class="secondary" data-edit="${x.id}">تعديل</button> <button class="danger" data-delete="${x.id}">حذف</button></td></tr>`).join('');
+ $('partsEmpty').style.display=arr.length?'none':'block';
+ document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editPart(b.dataset.edit));
+ document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('حذف هذه القطعة؟')){state.parts=state.parts.filter(x=>String(x.id)!==String(b.dataset.delete));save(state);renderAll();toast('تم حذف القطعة')}})
 }
-function cleanNumber(s){return Number(String(s).replace(/,/g,'.'))}
-function money(n){
- return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-function esc(s){
- return String(s).replace(/[&<>"']/g,c=>({
-  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
- }[c]));
-}
+$('partsSearch').oninput=renderParts;
 
-/*
- قواعد الاستخراج:
- 1) صيغة مختصرة:
-    PART = PRICE
-    PART : PRICE
-    PART - PRICE
-    PART السعر PRICE
- 2) صيغة الفاتورة:
-    رقم المرجع للقطعة:
-    PART
-    الكمية:
-    1
-    القيمة:
-    PRICE
-    ...
-    أو علامة = ثم التكلفة النهائية.
-    هنا نأخذ "القيمة" فقط.
- 3) لا نستخدم آخر رقم في السطر بشكل عام.
-*/
+function renderGlobal(){const q=$('globalSearch').value.toLowerCase().trim();const arr=q?state.parts.filter(x=>JSON.stringify(x).toLowerCase().includes(q)):[];$('globalEmpty').style.display=arr.length?'none':'block';$('globalRows').innerHTML=arr.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.part)}</td><td>${esc(x.name)}</td><td>${esc(x.car)}</td><td>${x.qty}</td><td>${money(x.original)}</td><td class="green">${money(sale(x.original,x.pct??state.pct))}</td></tr>`).join('')}
+$('globalSearch').oninput=renderGlobal;$('clearSearch').onclick=()=>{$('globalSearch').value='';renderGlobal()};
 
-function looksLikePart(s){
- s=s.trim();
- if(!s) return false;
- // رقم هيكل VIN غالباً 17 خانة أبجدية رقمية
- if(/^[A-HJ-NPR-Z0-9]{17}$/i.test(s)) return false;
- // السنة أو كمية أو رقم منفرد
- if(/^\d{1,6}$/.test(s)) return false;
- // رقم قطعة يجب أن يحتوي رقماً، وغالباً أحرف أو فاصل
- if(!/\d/.test(s)) return false;
- if(!/[A-Za-z]/.test(s) && !/[._\/-]/.test(s)) return false;
- return true;
-}
-
-function extractStructured(lines){
- let found=[];
+function looksPart(s){s=String(s).trim();return s.length>=4&&s.length<=40&&/[A-Za-z]/.test(s)&&/\d/.test(s)&&!/^[A-HJ-NPR-Z0-9]{17}$/i.test(s)}
+function extractText(text){
+ text=text.replace(/\r/g,'');const lines=text.split('\n').map(x=>x.trim()).filter(Boolean),out=[],seen=new Set();
+ const direct=/^([A-Za-z0-9][A-Za-z0-9._\/-]{3,39})\s*(?:=|:|-|\bالسعر\b|\bprice\b)\s*([0-9][0-9,]*(?:\.[0-9]+)?)$/i;
  for(let i=0;i<lines.length;i++){
-   let line=lines[i].trim();
-
-   // "رقم المرجع للقطعة:" ثم رقم القطعة في السطر التالي
-   if(/^(رقم\s*المرجع\s*للقطعة|مرجع\s*القطعة|رقم\s*القطعة)\s*:?\s*$/i.test(line)){
-      let part=null;
-      for(let j=i+1;j<Math.min(i+5,lines.length);j++){
-        let candidate=lines[j].trim();
-        if(looksLikePart(candidate)){part=candidate; i=j; break;}
-      }
-      if(!part) continue;
-
-      // ابحث بعد رقم القطعة عن "القيمة" ضمن هذا البند، وليس "التكلفة النهائية"
-      let price=null;
-      for(let j=i+1;j<Math.min(i+12,lines.length);j++){
-        let x=lines[j].trim();
-        if(/^(القيمة|قيمة)\s*:?\s*$/i.test(x)){
-          for(let k=j+1;k<Math.min(j+3,lines.length);k++){
-            let pm=normalizeDigits(lines[k]).match(/^([0-9]+(?:[.,][0-9]+)?)\s*(?:ريال|ر\.س|SAR|SR)?$/i);
-            if(pm){price=cleanNumber(pm[1]);break;}
-          }
-          break;
-        }
-        // إذا بدأ بند جديد، توقف
-        if(/^(رقم\s*المرجع\s*للقطعة|مرجع\s*القطعة|رقم\s*القطعة)\s*:?\s*$/i.test(x)) break;
-      }
-      if(price!==null) found.push({part,price});
+   let m=lines[i].match(direct);
+   if(m&&looksPart(m[1])){let p=num(m[2]),k=m[1].toUpperCase();if(Number.isFinite(p)&&!seen.has(k)){out.push({part:m[1],original:p});seen.add(k)};continue}
+   if(/رقم\s*(المرجع\s*)?للقطعة|مرجع\s*القطعة/i.test(lines[i])){
+     let part='';for(let j=i+1;j<Math.min(lines.length,i+6);j++){if(looksPart(lines[j])){part=lines[j];break}}
+     if(!part)continue;let price=NaN;
+     for(let j=i+1;j<Math.min(lines.length,i+16);j++){if(/رقم\s*(المرجع\s*)?للقطعة|مرجع\s*القطعة/i.test(lines[j]))break;let m1=lines[j].match(/^القيمة\s*[:：]?\s*([0-9][0-9,]*(?:\.[0-9]+)?)$/i);if(m1){price=num(m1[1]);break}if(/^القيمة\s*[:：]?\s*$/i.test(lines[j])&&j+1<lines.length){price=num(lines[j+1]);break}}
+     let k=part.toUpperCase();if(Number.isFinite(price)&&!seen.has(k)){out.push({part,original:price});seen.add(k)}
    }
  }
- return found;
+ return out
 }
-
-function extractInline(lines){
- let found=[];
- const partPattern='([A-Za-z0-9][A-Za-z0-9._/-]{2,})';
-
- for(const raw of lines){
-   const line=normalizeDigits(raw.trim());
-   if(!line) continue;
-
-   // صيغ: PART = 432 / PART : 432 / PART - 432
-   let rx=new RegExp('^\\s*'+partPattern+'\\s*(?:=|:|[-–—])\\s*([0-9]+(?:[.,][0-9]{1,2})?)\\s*(?:ريال|ر\\.س|SAR|SR)?\\s*$','i');
-   let m=line.match(rx);
-   if(m && looksLikePart(m[1])){
-      found.push({part:m[1],price:cleanNumber(m[2])});
-      continue;
-   }
-
-   // صيغ: PART السعر 432 / PART price 432
-   rx=new RegExp('^\\s*'+partPattern+'\\s+(?:السعر|سعر|price)\\s*[:=\\-]?\\s*([0-9]+(?:[.,][0-9]{1,2})?)\\s*(?:ريال|ر\\.س|SAR|SR)?\\s*$','i');
-   m=line.match(rx);
-   if(m && looksLikePart(m[1])){
-      found.push({part:m[1],price:cleanNumber(m[2])});
-   }
- }
- return found;
+let extracted=[];
+function renderExtract(){
+ const f=($('extractSearch').value||'').toLowerCase().trim(),arr=extracted.filter(x=>x.part.toLowerCase().includes(f));
+ $('extractRows').innerHTML=arr.map((r,i)=>`<tr><td>${i+1}</td><td><input class="cell" data-part="${r.id}" value="${esc(r.part)}"></td><td><input class="cell" type="number" step="0.01" data-original="${r.id}" value="${r.original}"></td><td class="green">${money(sale(r.original,Number($('extractPct').value)||0))}</td><td><button class="danger" data-erased="${r.id}">حذف</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">ألصق النص ثم اضغط استخراج الأسعار.</td></tr>';
+ document.querySelectorAll('[data-erased]').forEach(b=>b.onclick=()=>{extracted=extracted.filter(x=>x.id!==b.dataset.erased);renderExtract()});
+ document.querySelectorAll('[data-part]').forEach(e=>e.oninput=()=>{const r=extracted.find(x=>x.id===e.dataset.part);if(r)r.part=e.value});
+ document.querySelectorAll('[data-original]').forEach(e=>e.oninput=()=>{const r=extracted.find(x=>x.id===e.dataset.original);if(r){r.original=num(e.value);renderExtract()}});
 }
+$('extractBtn').onclick=()=>{const p=num($('extractPct').value);extracted=extractText($('sourceText').value).map((x,i)=>({...x,id:String(Date.now())+'_'+i}));state.recent=extracted.map(x=>({part:x.part,original:x.original,final:sale(x.original,p)})).concat(state.recent).slice(0,20);save(state);renderExtract();dash();toast(extracted.length?'تم استخراج '+extracted.length+' قطعة':'لم يتم العثور على أسعار واضحة')};
+$('extractSearch').oninput=renderExtract;$('extractPct').oninput=renderExtract;
+$('clearExtract').onclick=()=>{$('sourceText').value='';$('carTitle').value='';extracted=[];renderExtract()};
+$('deleteAllResults').onclick=()=>{extracted=[];renderExtract();toast('تم حذف النتائج')};
+$('copyResults').onclick=()=>{const title=$('carTitle').value.trim();let s=title?title+'\\n\\n':'';s+=extracted.map((r,i)=>`${i+1}. ${r.part} | السعر الأصلي: ${money(r.original)} | السعر مع الزيادة: ${money(sale(r.original,num($('extractPct').value)))}`).join('\\n');navigator.clipboard.writeText(s).then(()=>toast('تم نسخ النتائج'))};
+$('copyWhatsapp').onclick=()=>{const title=$('carTitle').value.trim();let s=title?`*${title}*\\n\\n`:'';s+=extracted.map((r,i)=>`${i+1}- ${r.part}\\nالسعر: ${money(sale(r.original,num($('extractPct').value)))}`).join('\\n\\n');navigator.clipboard.writeText(s).then(()=>toast('تم نسخ صيغة الواتساب'))};
+$('downloadCsv').onclick=()=>{let c='\\uFEFFرقم,رقم القطعة,السعر الأصلي,السعر مع الزيادة\\n';extracted.forEach((r,i)=>c+=`${i+1},"${r.part.replace(/"/g,'""')}","${r.original}","${sale(r.original,num($('extractPct').value))}"\\n`);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv;charset=utf-8'}));a.download='اسعار_قطع_السيارات.csv';a.click()};
+$('printResults').onclick=()=>window.print();
 
-function processText(){
- const text=normalizeDigits($('input').value);
- const pct=Number($('markup').value);
- const rate=Number.isFinite(pct)?pct:20;
- const lines=text.split(/\r?\n/);
+$('partForm').onsubmit=e=>{e.preventDefault();const id=$('editId').value||String(Date.now());const x={id,part:$('partNo').value.trim(),name:$('partName').value.trim(),brand:$('brand').value.trim(),car:$('car').value.trim(),model:$('model').value.trim(),year:$('year').value.trim(),qty:Number($('qty').value)||0,original:num($('cost').value),alt:$('alt').value.trim(),location:$('location').value.trim(),notes:$('notes').value.trim(),pct:state.pct};const i=state.parts.findIndex(v=>String(v.id)===String(id));if(i>=0)state.parts[i]=x;else state.parts.unshift(x);save(state);resetForm();renderAll();go('parts');toast('تم حفظ القطعة')};
+function editPart(id){const x=state.parts.find(v=>String(v.id)===String(id));if(!x)return;[['partNo',x.part],['partName',x.name],['brand',x.brand],['car',x.car],['model',x.model],['year',x.year],['qty',x.qty],['cost',x.original],['alt',x.alt],['location',x.location],['notes',x.notes]].forEach(([a,b])=>$(a).value=b??'');$('editId').value=x.id;$('formTitle').textContent='تعديل قطعة';go('add')}
+function resetForm(){$('partForm').reset();$('editId').value='';$('qty').value=1;$('formTitle').textContent='إضافة قطعة'}
+$('cancelEdit').onclick=resetForm;
 
- // structured invoices first
- const structured=extractStructured(lines);
- const inline=extractInline(lines);
+$('defaultPct').value=state.pct;$('priceExample').value='100 ⟶ '+money(sale(100,state.pct));
+$('defaultPct').oninput=()=>{$('priceExample').value='100 ⟶ '+money(sale(100,num($('defaultPct').value)))};
+$('savePct').onclick=()=>{state.pct=num($('defaultPct').value);save(state);dash();renderParts();toast('تم حفظ نسبة الزيادة')};
+$('applyAll').onclick=()=>{state.parts.forEach(x=>x.pct=state.pct);save(state);renderParts();toast('تم تطبيق النسبة على السجلات')};
 
- // Deduplicate by part number, preferring structured "القيمة"
- const map=new Map();
- for(const x of inline) map.set(x.part.toUpperCase(),x);
- for(const x of structured) map.set(x.part.toUpperCase(),x);
+function renderUsers(){if(current()?.role!=='admin')return;$('usersRows').innerHTML=state.users.map(u=>`<tr><td>${esc(u.username)}</td><td>${esc(u.display)}</td><td>${u.role==='admin'?'مدير':'مستخدم'}</td><td>${u.username==='Abuazza'?'<span class="badge">الحساب الرئيسي</span>':`<button class="danger" data-userdel="${u.id}">حذف</button>`}</td></tr>`).join('');document.querySelectorAll('[data-userdel]').forEach(b=>b.onclick=()=>{state.users=state.users.filter(x=>x.id!==b.dataset.userdel);save(state);renderUsers();dash()})}
+$('userForm').onsubmit=e=>{e.preventDefault();const username=$('newUser').value.trim();if(state.users.some(x=>x.username===username)){toast('اسم المستخدم موجود بالفعل');return}state.users.push({id:String(Date.now()),username,password:$('newPass').value,display:$('newDisplay').value.trim()||username,role:$('newRole').value});save(state);$('userForm').reset();renderUsers();dash();toast('تمت إضافة المستخدم')};
 
- rows=[];
- for(const x of map.values()){
-   const increase=x.price*rate/100;
-   rows.push({
-     part:x.part,
-     original:x.price,
-     increase,
-     final:x.price+increase
-   });
- }
-
- render();
-
- if(rows.length){
-   $('status').className='status success';
-   $('status').textContent=
-    `تم استخراج ${rows.length} قطعة. تم تطبيق زيادة ${rate}% على السعر الأصلي فقط. تم تجاهل الموديل ورقم الهيكل والكمية والخصم والتكلفة النهائية.`;
- }else{
-   $('status').className='status error';
-   $('status').textContent='لم أجد أرقام قطع مرتبطة بسعر واضح. تأكد من وجود رقم القطعة مع السعر أو وجود "القيمة" بعد رقم المرجع للقطعة.';
- }
-}
-
-function render(){
- if(!rows.length){
-  $('results').innerHTML='<tr><td colspan="4" class="empty">لا توجد نتائج</td></tr>';
-  $('tfoot').innerHTML='';
-  return;
- }
-
- $('results').innerHTML=rows.map((r,i)=>`
- <tr>
-  <td>${i+1}</td>
-  <td><b>${esc(r.part)}</b></td>
-  <td>${money(r.original)}</td>
-  <td><b>${money(r.final)}</b></td>
- </tr>`).join('');
-
- $('tfoot').innerHTML='';
-}
-
-async function copyResults(){
- if(!rows.length){$('status').textContent='لا توجد نتائج لنسخها.';return;}
- const text=rows.map(r=>`${r.part}\t${r.original}\t${r.final}`).join('\n');
- await navigator.clipboard.writeText(text);
- $('status').className='status success';
- $('status').textContent='تم نسخ النتائج.';
-}
-
-function downloadCSV(){
- if(!rows.length){$('status').textContent='لا توجد نتائج لتحميلها.';return;}
- let csv='\uFEFFرقم القطعة,السعر الأصلي,السعر مع الزيادة\n';
- rows.forEach(r=>{
-  csv+=`"${r.part}","${r.original}","${r.final}"\n`;
- });
- const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
- const a=document.createElement('a');
- a.href=URL.createObjectURL(blob);
- a.download='اسعار_قطع_السيارات.csv';
- a.click();
-}
-
-function clearAll(){
- $('input').value='';
- $('markup').value='20';
- rows=[];
- render();
- $('status').className='status';
- $('status').textContent='';
-}
+function renderAll(){dash();renderParts();renderGlobal();renderExtract();renderUsers();$('defaultPct').value=state.pct;$('priceExample').value='100 ⟶ '+money(sale(100,state.pct))}
+auth();
 </script>
 </body>
 </html>
