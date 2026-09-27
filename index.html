@@ -50,8 +50,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <div class="brand">إدارة قطع السيارات<small>نظام إدارة وتسعير قطع السيارات</small></div>
   <nav class="nav">
     <button data-screen="dashboard" class="active">🏠 الرئيسية</button>
+    <button data-screen="aiExtract">✨ الاستخراج الذكي</button>
     <button data-screen="search">🔎 البحث عن قطعة</button>
-    <button data-screen="extract">✨ الاستخراج الذكي</button>
+    <button data-screen="extract">💰 حاسبة الزيادة</button>
     <button data-screen="parts">🗂️ قاعدة القطع</button>
     <button data-screen="add">➕ إضافة قطعة</button>
     <button data-screen="pricing">💰 التسعير والزيادة</button>
@@ -91,17 +92,54 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   </div>
 </section>
 
+
+<section id="aiExtract" class="screen">
+  <h1 class="title">الاستخراج الذكي</h1>
+  <p class="subtitle">محرك ذكي للتعرف على أرقام القطع وأسعارها مهما اختلف ترتيب النص أو الصيغة.</p>
+
+  <div class="panel">
+    <div class="price-grid">
+      <input id="aiCarTitle" placeholder="اسم السيارة / الموديل (اختياري)">
+      <input id="aiConfidence" value="تحليل تلقائي" readonly>
+      <input id="aiFilter" placeholder="تصفية النتائج">
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>النص المراد تحليله</label>
+      <textarea id="aiText" style="width:100%;min-height:300px;padding:13px;border:1px solid #d8dee7;border-radius:11px"
+        placeholder="ألصق هنا أي نص من فاتورة أو عرض سعر أو رسالة واتساب...&#10;&#10;مثال:&#10;6410D529XA = 432&#10;غطاء سحب خلفي يسار&#10;6410D949XB : 76&#10;&#10;أو:&#10;رقم المرجع للقطعة:&#10;5XT68RXFAC&#10;الكمية : 1&#10;القيمة : 500&#10;نسبة الخصم : 10&#10;التكلفة النهائية 450"></textarea>
+    </div>
+    <div class="actions">
+      <button class="primary" id="aiAnalyze">✨ تحليل واستخراج</button>
+      <button class="secondary" id="aiClear">مسح</button>
+      <button class="secondary" id="aiCopy">نسخ النتائج</button>
+      <button class="secondary" id="aiSave">حفظ في قاعدة القطع</button>
+    </div>
+  </div>
+
+  <div id="aiResultPanel" class="panel" style="display:none">
+    <h3>نتائج الاستخراج الذكي</h3>
+    <p id="aiSummary" class="subtitle"></p>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>#</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>الحالة</th><th>إجراء</th></tr></thead>
+        <tbody id="aiRows"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <section id="search" class="screen">
   <h1 class="title">البحث عن قطعة</h1><p class="subtitle">ابحث برقم القطعة أو الاسم أو الماركة أو السيارة.</p>
   <div class="panel">
-    <div class="toolbar"><input id="globalSearch" placeholder="اكتب كلمة البحث..."><button class="secondary" id="clearSearch">مسح</button></div>
+    <div class="toolbar"><input id="globalSearch" placeholder="اكتب كلمة البحث..."><button class="secondary" id="clearSearch">مسح</button><button class="btn btn-primary" onclick="saveAIResultsToPrivateData()">💾 حفظ في الداتا الخاصة</button>
+    </div>
     <div id="globalEmpty" class="empty">اكتب كلمة للبحث.</div>
     <div class="table-wrap"><table class="table"><thead><tr><th>#</th><th>رقم القطعة</th><th>الاسم</th><th>السيارة</th><th>الكمية</th><th>السعر الأصلي</th><th>السعر مع الزيادة</th></tr></thead><tbody id="globalRows"></tbody></table></div>
   </div>
 </section>
 
 <section id="extract" class="screen">
-  <h1 class="title">الاستخراج الذكي</h1><p class="subtitle">الصق نص الفاتورة أو التسعيرة، وسيتم استخراج أرقام القطع والأسعار فقط.</p>
+  <h1 class="title">حاسبة الزيادة</h1><p class="subtitle">احسب السعر بعد الزيادة مع إمكانية تعديل النسبة ومراجعة النتائج.</p>
   <div class="extract-grid">
     <div class="panel extract-box">
       <h3>نص الفاتورة</h3>
@@ -171,6 +209,40 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
       <div class="field"><label>مثال</label><input id="priceExample" readonly></div>
     </div>
     <div class="actions"><button class="primary" id="savePct">حفظ الإعداد</button><button class="secondary" id="applyAll">تطبيق النسبة على كل السجلات</button></div>
+  </div>
+</section>
+
+
+<section id="privateData" class="screen">
+  <div class="page-head">
+    <div>
+      <h2>🗃️ الداتا الخاصة</h2>
+      <p>جميع البيانات التي تم حفظها من قسم الاستخراج الذكي محفوظة هنا في ملف بيانات واحد.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input id="privateSearch" class="input" placeholder="بحث برقم القطعة..." oninput="renderPrivateData()">
+      <button class="btn btn-primary" onclick="exportPrivateDataExcel()">📊 تصدير Excel</button>
+      <button class="btn btn-secondary" onclick="clearPrivateData()">🗑️ مسح الداتا</button>
+    </div>
+    <div class="muted" id="privateCount">0 سجل</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>رقم القطعة</th>
+            <th>السعر الأصلي</th>
+            <th>السيارة / الموديل</th>
+            <th>تاريخ الحفظ</th>
+            <th>إجراء</th>
+          </tr>
+        </thead>
+        <tbody id="privateDataBody"></tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -279,6 +351,250 @@ $('userForm').onsubmit=e=>{e.preventDefault();const username=$('newUser').value.
 
 function renderAll(){dash();renderParts();renderGlobal();renderExtract();renderUsers();$('defaultPct').value=state.pct;$('priceExample').value='100 ⟶ '+money(sale(100,state.pct))}
 auth();
+
+/* Smart extraction engine: local heuristic parser for many invoice/message formats.
+   This is not a cloud LLM; it runs entirely in the browser and can be upgraded later
+   to a real AI connector without changing the UI. */
+let aiExtracted=[];
+
+function aiNormalize(s){
+  return String(s||'')
+    .replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/，/g,',').replace(/٫/g,'.').replace(/٬/g,',');
+}
+function aiNumber(s){
+  const m=aiNormalize(s).replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);
+  return m?Number(m[0]):NaN;
+}
+function aiLooksPart(s){
+  s=String(s||'').trim().replace(/^[=:;,\-]+|[=:;,\-]+$/g,'');
+  if(!s || s.length<4 || s.length>45) return false;
+  if(/^\d+$/.test(s)) return false;
+  if(/^[A-HJ-NPR-Z0-9]{17}$/i.test(s)) return false; // VIN
+  if(!/\d/.test(s)) return false;
+  if(!/[A-Za-z]/.test(s)) return false;
+  return true;
+}
+function aiAdd(out,seen,part,price,confidence='واضح'){
+  part=String(part||'').trim();
+  price=aiNumber(price);
+  if(!aiLooksPart(part)||!Number.isFinite(price)) return;
+  const key=part.toUpperCase();
+  if(seen.has(key)) return;
+  seen.add(key);
+  out.push({id:String(Date.now())+'_'+out.length,part,original:price,confidence});
+}
+function smartExtract(text){
+  text=aiNormalize(text).replace(/\r/g,'');
+  const lines=text.split('\n').map(x=>x.trim()).filter(Boolean);
+  const out=[],seen=new Set();
+
+  // 1) Direct assignment formats.
+  const direct=/^([A-Za-z0-9][A-Za-z0-9._\/-]{3,44})\s*(?:=|:|：|-|–|—|\bالسعر\b|\bprice\b)\s*([0-9][0-9,]*(?:\.[0-9]+)?)\s*$/i;
+  lines.forEach(line=>{
+    let m=line.match(direct);
+    if(m) aiAdd(out,seen,m[1],m[2],'واضح');
+    // "PART 432" and "PART السعر: 432"
+    let m2=line.match(/^([A-Za-z0-9][A-Za-z0-9._\/-]{3,44})\s+(?:السعر\s*[:：]?\s*)?([0-9][0-9,]*(?:\.[0-9]+)?)$/i);
+    if(m2) aiAdd(out,seen,m2[1],m2[2],'محتمل');
+  });
+
+  // 2) Structured invoice blocks: reference -> value, ignoring quantity/discount/final cost.
+  for(let i=0;i<lines.length;i++){
+    if(/رقم\s*(?:المرجع\s*)?للقطعة|مرجع\s*القطعة|part\s*(?:no|number)|part\s*#/i.test(lines[i])){
+      let part='';
+      for(let j=i+1;j<Math.min(lines.length,i+7);j++){
+        if(aiLooksPart(lines[j])){part=lines[j];break}
+      }
+      if(!part) continue;
+      let price=NaN;
+      for(let j=i+1;j<Math.min(lines.length,i+18);j++){
+        if(/رقم\s*(?:المرجع\s*)?للقطعة|مرجع\s*القطعة/i.test(lines[j])) break;
+        let v=lines[j].match(/^(?:القيمة|السعر|price|value)\s*[:：]?\s*([0-9][0-9,]*(?:\.[0-9]+)?)$/i);
+        if(v){price=aiNumber(v[1]);break}
+        if(/^(?:القيمة|السعر|price|value)\s*[:：]?\s*$/i.test(lines[j]) && j+1<lines.length){
+          price=aiNumber(lines[j+1]);break;
+        }
+      }
+      aiAdd(out,seen,part,price,'فاتورة');
+    }
+  }
+
+  // 3) "part ... price" appearing on the same line with Arabic separators.
+  lines.forEach(line=>{
+    const m=line.match(/([A-Za-z0-9][A-Za-z0-9._\/-]{3,44}).{0,25}?(?:القيمة|السعر|price|value)\s*[:：=]?\s*([0-9][0-9,]*(?:\.[0-9]+)?)/i);
+    if(m) aiAdd(out,seen,m[1],m[2],'محتمل');
+  });
+
+  // 4) Avoid obvious VINs, quantities, discount percentages and final-cost lines.
+  return out.filter(x=>!/^0*\.?\d+$/.test(x.part));
+}
+function renderAI(){
+  const f=($('aiFilter').value||'').toLowerCase().trim();
+  const arr=aiExtracted.filter(x=>x.part.toLowerCase().includes(f));
+  $('aiRows').innerHTML=arr.length?arr.map((r,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td><input class="cell" data-aip="${r.id}" value="${esc(r.part)}"></td>
+      <td><input class="cell" type="number" step="0.01" data-aiv="${r.id}" value="${r.original}"></td>
+      <td><span class="badge">${esc(r.confidence)}</span></td>
+      <td><button class="danger" data-aidel="${r.id}">حذف</button></td>
+    </tr>`).join('')
+  : '<tr><td colspan="5" class="empty">لم يتم العثور على أرقام قطع وأسعار واضحة.</td></tr>';
+  $('aiResultPanel').style.display='block';
+  $('aiSummary').textContent=`تم التعرف على ${arr.length} نتيجة. تم تجاهل أرقام الشاصي والكميات والخصومات والتكلفة النهائية.`;
+}
+$('aiAnalyze').onclick=()=>{
+  aiExtracted=smartExtract($('aiText').value);
+  renderAI();
+  $('aiConfidence').value=`تم التعرف على ${aiExtracted.length} قطعة`;
+  toast(aiExtracted.length?'تم تحليل النص واستخراج الأسعار':'لم يتم العثور على بيانات واضحة');
+};
+$('aiClear').onclick=()=>{
+  $('aiText').value='';$('aiFilter').value='';aiExtracted=[];
+  $('aiResultPanel').style.display='none';$('aiConfidence').value='تحليل تلقائي';
+};
+$('aiFilter').oninput=renderAI;
+$('aiCopy').onclick=()=>{
+  const s=aiExtracted.map((r,i)=>`${i+1}. ${r.part} | السعر الأصلي: ${money(r.original)}`).join('\n');
+  navigator.clipboard.writeText(s).then(()=>toast('تم نسخ النتائج'));
+};
+$('aiSave').onclick=()=>{
+  aiExtracted.forEach(r=>state.parts.unshift({
+    id:String(Date.now())+Math.random(),part:r.part,name:'',brand:'',car:$('aiCarTitle').value.trim(),
+    model:'',year:'',qty:1,original:r.original,alt:'',location:'',notes:'استخراج ذكي',pct:state.pct
+  }));
+  save(state);renderAll();toast('تم حفظ النتائج في قاعدة القطع');
+};
+document.addEventListener('click',e=>{
+  if(e.target.dataset.aidel){aiExtracted=aiExtracted.filter(x=>x.id!==e.target.dataset.aidel);renderAI()}
+});
+document.addEventListener('input',e=>{
+  if(e.target.dataset.aip){const r=aiExtracted.find(x=>x.id===e.target.dataset.aip);if(r)r.part=e.target.value}
+  if(e.target.dataset.aiv){const r=aiExtracted.find(x=>x.id===e.target.dataset.aiv);if(r){r.original=aiNumber(e.target.value);renderAI()}}
+});
+
+
+/* ===== الداتا الخاصة: ملف بيانات موحد داخل LocalStorage ===== */
+const PRIVATE_DATA_KEY = 'carPartsPrivateData';
+
+function getPrivateData() {
+  try { return JSON.parse(localStorage.getItem(PRIVATE_DATA_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function setPrivateData(rows) {
+  localStorage.setItem(PRIVATE_DATA_KEY, JSON.stringify(rows));
+}
+
+function saveAIResultsToPrivateData() {
+  // يدعم أكثر من اسم محتمل لمصفوفة نتائج الاستخراج في النسخ السابقة.
+  const candidates = [
+    window.aiResults, window.extractedParts, window.smartResults,
+    window.aiExtractedResults, window.currentAIResults
+  ];
+  let rows = candidates.find(x => Array.isArray(x));
+  if (!rows && typeof aiResults !== 'undefined' && Array.isArray(aiResults)) rows = aiResults;
+  if (!rows) rows = [];
+
+  const normalized = rows.map(r => ({
+    partNumber: r.partNumber || r.part || r.number || r.code || '',
+    price: Number(r.price ?? r.originalPrice ?? r.value ?? 0),
+    vehicle: r.vehicle || r.model || r.car || document.getElementById('aiCarModel')?.value || '',
+    savedAt: new Date().toLocaleString('ar-SA')
+  })).filter(r => r.partNumber && Number.isFinite(r.price));
+
+  if (!normalized.length) {
+    alert('لا توجد بيانات مستخرجة للحفظ.');
+    return;
+  }
+
+  const all = getPrivateData();
+  all.push(...normalized);
+  setPrivateData(all);
+  renderPrivateData();
+  alert('تم حفظ البيانات في الداتا الخاصة.');
+}
+
+function renderPrivateData() {
+  const body = document.getElementById('privateDataBody');
+  if (!body) return;
+  const q = (document.getElementById('privateSearch')?.value || '').trim().toLowerCase();
+  const all = getPrivateData();
+  const rows = all.filter(r => !q || String(r.partNumber).toLowerCase().includes(q));
+
+  document.getElementById('privateCount').textContent = `${rows.length} سجل`;
+
+  body.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${escapeHtmlPrivate(r.partNumber)}</td>
+      <td>${Number(r.price).toLocaleString('en-US', {maximumFractionDigits: 2})}</td>
+      <td>${escapeHtmlPrivate(r.vehicle || '-')}</td>
+      <td>${escapeHtmlPrivate(r.savedAt || '-')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deletePrivateData(${all.indexOf(r)})">حذف</button></td>
+    </tr>
+  `).join('');
+}
+
+function escapeHtmlPrivate(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[c]));
+}
+
+function deletePrivateData(index) {
+  const all = getPrivateData();
+  if (index < 0 || index >= all.length) return;
+  all.splice(index, 1);
+  setPrivateData(all);
+  renderPrivateData();
+}
+
+function clearPrivateData() {
+  if (!confirm('هل تريد مسح جميع البيانات المحفوظة في الداتا الخاصة؟')) return;
+  localStorage.removeItem(PRIVATE_DATA_KEY);
+  renderPrivateData();
+}
+
+function exportPrivateDataExcel() {
+  const rows = getPrivateData();
+  if (!rows.length) {
+    alert('لا توجد بيانات لتصديرها.');
+    return;
+  }
+
+  // ملف Excel-compatible بصيغة XLS (يمكن فتحه مباشرة في Excel)
+  const table = rows.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${escapeHtmlPrivate(r.partNumber)}</td>
+      <td>${Number(r.price).toFixed(2)}</td>
+      <td>${escapeHtmlPrivate(r.vehicle || '')}</td>
+      <td>${escapeHtmlPrivate(r.savedAt || '')}</td>
+    </tr>`).join('');
+
+  const xls = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"></head>
+  <body><table border="1">
+  <tr><th>الرقم</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>السيارة / الموديل</th><th>تاريخ الحفظ</th></tr>
+  ${table}</table></body></html>`;
+
+  const blob = new Blob(['\ufeff', xls], {type:'application/vnd.ms-excel;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'الداتا_الخاصة_لقطع_السيارات.xls';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderPrivateData();
+});
+
 </script>
 </body>
 </html>
