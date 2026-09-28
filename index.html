@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>إدارة قطع السيارات — النسخة المعتمدة</title>
-<meta name="app-version" content="2026-09-28-login-porsche-v2">
+<meta name="app-version" content="2026-09-28-login-disabled-porsche-v1">
 <style>
 :root{--nav:#142235;--blue:#1769e0;--blue2:#0d5bd4;--bg:#f4f7fb;--card:#fff;--text:#17202a;--muted:#697586;--line:#e5eaf0;--green:#159957;--red:#c62828;--orange:#ef9b00}
 *{box-sizing:border-box}html,body{margin:0;font-family:Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text)}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
-.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;position:relative;overflow:hidden;background:#070b10 url('https://images.unsplash.com/photo-1613466778039-08bd140c5a9e?auto=format&fit=crop&fm=jpg&q=85&w=2200') center/cover no-repeat}.auth:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,7,12,.78),rgba(3,7,12,.42),rgba(3,7,12,.72));backdrop-filter:blur(1px)}.auth:after{content:'PORSCHE';position:absolute;left:5%;bottom:5%;font-size:clamp(42px,9vw,120px);font-weight:900;letter-spacing:.18em;color:#fff1;pointer-events:none}.login-card{position:relative;z-index:2;width:min(460px,100%);background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.65);border-radius:28px;padding:34px;box-shadow:0 30px 90px rgba(0,0,0,.48);backdrop-filter:blur(12px)}.login-logo{width:72px;height:72px;margin:auto auto 16px;border-radius:22px;background:linear-gradient(145deg,#111827,#020617);color:#fff;display:flex;align-items:center;justify-content:center;font-size:31px;font-weight:900;box-shadow:0 12px 28px #0004;border:1px solid #ffffff20}.login-card h1{text-align:center;margin:0 0 7px;font-size:28px}.login-card p{text-align:center;color:var(--muted);margin:0 0 22px}.dhikr{text-align:center;color:var(--blue);font-weight:800;line-height:1.8;margin:-10px 0 22px}.login-card .primary{box-shadow:0 10px 24px #1769e04d}.login-card .field input{background:#f8fafc}.login-card .field input:focus{background:#fff}
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:flex-start;padding:clamp(18px,5vw,64px);position:relative;overflow:hidden;background:#070b10 url('./porsche-login.jpeg') center/cover no-repeat}.auth:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,12,.12) 0%,rgba(2,6,12,.18) 35%,rgba(2,6,12,.72) 72%,rgba(2,6,12,.88) 100%)}.login-card{position:relative;z-index:2;width:min(410px,94vw);margin-inline-start:auto;background:rgba(8,14,24,.78);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:30px;box-shadow:0 28px 90px rgba(0,0,0,.55);backdrop-filter:blur(12px)}.login-logo{width:66px;height:66px;margin:0 auto 14px;border-radius:18px;background:linear-gradient(145deg,#151c28,#02050a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;box-shadow:0 10px 26px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.16)}.login-card h1{text-align:center;margin:0 0 7px;font-size:27px;color:#fff}.login-card p{text-align:center;color:#c9d2df;margin:0 0 20px}.dhikr{text-align:center;color:#8fc1ff;font-weight:800;line-height:1.8;margin:-6px 0 20px}.login-card .field label{color:#eef4fb}.login-card .field input{background:rgba(255,255,255,.96);color:#111827;border-color:rgba(255,255,255,.28)}.login-card .primary{box-shadow:0 10px 24px rgba(23,105,224,.28);padding:12px 16px}.login-card .error{background:#ffe8e8;color:#9b111e}.login-card:after{content:'PORSCHE';display:block;text-align:center;margin-top:16px;color:rgba(255,255,255,.38);font-size:11px;letter-spacing:.28em;font-weight:900}@media(max-width:850px){.auth{justify-content:center;background-position:center center}.auth:before{background:linear-gradient(180deg,rgba(2,6,12,.28),rgba(2,6,12,.74))}.login-card{margin-inline:auto}}@media(max-width:520px){.auth{padding:14px;background-position:center}.login-card{padding:24px 20px;border-radius:20px}.login-logo{width:58px;height:58px}.login-card h1{font-size:23px}}
 .field{margin-bottom:13px}.field label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field input,.field textarea,.field select{width:100%;padding:12px;border:1px solid #d6dee8;border-radius:11px;background:#fff;outline:0}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1769e01a}
 .primary{border:0;background:var(--blue);color:#fff;padding:11px 16px;border-radius:10px;font-weight:800}.primary:hover{background:var(--blue2)}.secondary{border:0;background:#eef2f6;color:#263238;padding:11px 16px;border-radius:10px;font-weight:700}.danger{border:0;background:#c62828;color:#fff;padding:9px 12px;border-radius:9px}.success{border:0;background:var(--green);color:#fff;padding:10px 14px;border-radius:9px}.warning{border:0;background:#fff3d6;color:#805500;padding:10px 14px;border-radius:9px}.error{display:none;color:#a90000;background:#ffeded;padding:10px;border-radius:9px;margin-bottom:12px}
 #app{display:none}.shell{min-height:100vh}.sidebar{position:fixed;right:0;top:0;bottom:0;width:260px;background:var(--nav);color:#fff;padding:18px;z-index:20}.brand{font-size:20px;font-weight:900;padding:8px 4px 18px}.brand small{display:block;font-size:11px;color:#aab8c8;margin-top:5px;font-weight:500}.nav button{display:block;width:100%;border:0;background:transparent;color:#dbe4ee;text-align:right;padding:12px 13px;border-radius:10px;margin:4px 0}.nav button:hover,.nav button.active{background:#ffffff16;color:#fff}.bottom{position:absolute;bottom:16px;left:18px;right:18px}.userbox{background:#ffffff0d;padding:10px;border-radius:10px;font-size:12px;margin-bottom:8px}.logout{width:100%;border:0;background:#b71c1c;color:#fff;padding:10px;border-radius:9px}
@@ -64,27 +64,8 @@ function normalizeArabicDigits(value) {
 </style>
 
 
-<style id="login-disabled-note">
-.login-disabled-note{font-size:12px;color:#64748b;margin-top:4px}
-</style>
-
 </head>
 <body>
-
-<div id="loginScreen" class="auth">
-  <div class="login-card">
-    <div class="login-logo">ق</div>
-    <h1>إدارة قطع السيارات</h1>
-    <p>تسجيل الدخول إلى النظام</p>
-    <div class="dhikr">سبحان الله والحمدلله ولا اله الا الله والله اكبر<br>ولا حول ولا قوة الا بالله</div>
-    <div id="loginError" class="error"></div>
-    <form id="loginForm">
-      <div class="field"><label>اسم المستخدم</label><input id="loginUsername" autocomplete="username" required></div>
-      <div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
-      <button class="primary" style="width:100%" type="submit">دخول</button>
-    </form>
-  </div>
-</div>
 
 <div id="app">
 <aside id="sidebar" class="sidebar">
@@ -335,18 +316,23 @@ save(state);
 window.state=state;
 function toast(t){const x=document.createElement('div');x.className='toast';x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),1700)}
 function go(id){if(id==='users' && current()?.role!=='admin')return;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));$('sidebar').classList.remove('open');renderAll()}
-function current(){try{return JSON.parse(sessionStorage.getItem('carPartsSession')||'null')}catch{return null}}
+function current(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem('carPartsSession')||'null');
+    return s||{id:'temporary-user',username:'temporary',display:'المستخدم',role:'admin'};
+  }catch{return {id:'temporary-user',username:'temporary',display:'المستخدم',role:'admin'}}
+}
 function setSession(u){sessionStorage.setItem('carPartsSession',JSON.stringify({id:u.id,username:u.username,display:u.display,role:u.role}))}
+// تسجيل الدخول معطّل مؤقتًا بناءً على طلب المستخدم.
 function auth(){
   const s=current();
-  $('loginScreen').style.display=s?'none':'flex';
-  $('app').style.display=s?'block':'none';
-  if(s){
-    $('sideUser').textContent=s.display||s.username;
-    $('topUser').textContent=s.display||s.username;
-    $('usersNav').style.display=s.role==='admin'?'block':'none';
-    renderAll();
-  }
+  const login=$('loginScreen');
+  if(login) login.style.display='none';
+  $('app').style.display='block';
+  $('sideUser').textContent=s.display||s.username;
+  $('topUser').textContent=s.display||s.username;
+  $('usersNav').style.display='block';
+  renderAll();
 }
 
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.screen));
@@ -452,7 +438,11 @@ function aiCleanName(name){
 function aiLooksName(s){
   s=aiCleanName(s);
   if(!s || s.length<2 || s.length>120) return false;
-  if(/^(رقم الحالة|الرقم المرجعي|تاريخ التقييم|مركز التقدير|نوع الحالة|موقع تقييم الحالة|رقم اللوحة|رقم التقرير|سنة الصنع|اللون|الموديل|الرقم التسلسلي للمركبة|رقم الهيكل|عداد المسافات|مكان الضرر|التكلفة الإجمالية|الكمية|القيمة|نسبة الخصم|التكلفة النهائية)$/i.test(s)) return false;
+  // معلومات المركبة ليست اسم قطعة.
+  if(/^(?:رقم الحالة|الرقم المرجعي|تاريخ التقييم|مركز التقدير|نوع الحالة|موقع تقييم الحالة|رقم اللوحة|رقم التقرير|سنة الصنع|اللون|الموديل|الطراز|اسم السيارة|السيارة|الرقم التسلسلي للمركبة|رقم الهيكل|رقم الشاصي|الشاصي|VIN|التكلفة الإجمالية|الكمية|القيمة|نسبة الخصم|التكلفة النهائية)$/i.test(s)) return false;
+  if(/^[A-HJ-NPR-Z0-9]{17}$/i.test(s)) return false; // VIN
+  // سطر السيارة مثل: 
+  if(/^(?=.*[\u0600-\u06FF])(?=.*\d)(?:.+\s)?(?:19|20)\d{2}$/i.test(s)) return false;
   if(aiLooksPart(s)) return false;
   if(/^(?:DA|MC)\d+$/i.test(s)) return false;
   return /[\u0600-\u06FF]/.test(s) || /[A-Za-z]/.test(s);
@@ -487,6 +477,21 @@ function aiStructuredName(lines,index){
   }
   return '';
 }
+function aiVehicleInfo(lines){
+  let vehicle='', vin='';
+  for(const raw of lines){
+    const line=String(raw||'').trim();
+    if(!vin){
+      const vm=line.match(/\b[A-HJ-NPR-Z0-9]{17}\b/i);
+      if(vm) vin=vm[0];
+    }
+    if(!vehicle && /(?:19|20)\d{2}/.test(line) && /[\u0600-\u06FFA-Za-z]/.test(line) && !aiLooksPart(line)){
+      vehicle=line.replace(/^(?:السيارة|الموديل|الطراز)\s*[:：-]?\s*/i,'').trim();
+    }
+  }
+  return {vehicle,vin};
+}
+
 function smartExtract(text){
   text=aiNormalize(text).replace(/\r/g,'');
   const lines=text.split('\n').map(x=>x.trim()).filter(Boolean);
@@ -554,10 +559,14 @@ function renderAI(){
   $('aiSummary').textContent=`تم التعرف على ${arr.length} نتيجة. تم تجاهل أرقام الشاصي والكميات والخصومات والتكلفة النهائية.`;
 }
 $('aiAnalyze').onclick=()=>{
-  aiExtracted=smartExtract($('aiText').value);
+  const raw=$('aiText').value||'';
+  const lines=aiNormalize(raw).replace(/\r/g,'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const vehicleInfo=aiVehicleInfo(lines);
+  if(vehicleInfo.vehicle && !$('aiCarTitle').value.trim()) $('aiCarTitle').value=vehicleInfo.vehicle;
+  aiExtracted=smartExtract(raw);
   renderAI();
-  $('aiConfidence').value=`تم التعرف على ${aiExtracted.length} قطعة`;
-  toast(aiExtracted.length?'تم تحليل النص واستخراج الأسعار':'لم يتم العثور على بيانات واضحة');
+  $('aiConfidence').value=`تم التعرف على ${aiExtracted.length} قطعة${vehicleInfo.vehicle?' — السيارة: '+vehicleInfo.vehicle:''}${vehicleInfo.vin?' — تم تجاهل رقم الشاصي':''}`;
+  toast(aiExtracted.length?'تم تحليل النص واستخراج الأسعار مع تجاهل السيارة والشاصي':'لم يتم العثور على بيانات واضحة');
 };
 $('aiClear').onclick=()=>{
   $('aiText').value='';$('aiFilter').value='';aiExtracted=[];
@@ -709,28 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 
-<script id="login-handler-final">
-(function(){
-  const form=document.getElementById('loginForm');
-  if(!form) return;
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    const u=(document.getElementById('loginUsername').value||'').trim();
-    const p=document.getElementById('loginPassword').value||'';
-    const users=(window.state && Array.isArray(window.state.users)) ? window.state.users : [];
-    const found=users.find(x => String(x.username||'').trim().toLowerCase()===u.toLowerCase() && String(x.password??'')===p);
-    const err=document.getElementById('loginError');
-    if(!found){
-      err.textContent='اسم المستخدم أو كلمة المرور غير صحيحة';
-      err.style.display='block';
-      return;
-    }
-    err.style.display='none';
-    sessionStorage.setItem('carPartsSession', JSON.stringify({id:found.id,username:found.username,display:found.display,role:found.role}));
-    form.reset();
-    if(typeof auth==='function') auth();
-  });
-})();
-</script>
+
 </body>
 </html>
