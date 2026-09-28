@@ -38,22 +38,6 @@ function normalizeArabicDigits(value) {
     .replace(/٬/g, ',');
 }
 
-$('loginForm').onsubmit=e=>{
-  e.preventDefault();
-  const u=$('loginUsername').value.trim();
-  const p=$('loginPassword').value;
-  const found=state.users.find(x=>String(x.username||'').trim().toLowerCase()===u.toLowerCase() && String(x.password??'')===p);
-  if(!found){
-    $('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';
-    $('loginError').style.display='block';
-    return;
-  }
-  $('loginError').style.display='none';
-  setSession(found);
-  $('loginForm').reset();
-  auth();
-};
-
 </script>
 
 
@@ -350,6 +334,7 @@ if(adminIndex<0){
 state.pct=Number.isFinite(Number(state.pct))?Number(state.pct):20;
 state.recent=Array.isArray(state.recent)?state.recent:[];
 save(state);
+window.state=state;
 function toast(t){const x=document.createElement('div');x.className='toast';x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),1700)}
 function go(id){if(id==='users' && current()?.role!=='admin')return;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));$('sidebar').classList.remove('open');renderAll()}
 function current(){try{return JSON.parse(sessionStorage.getItem('carPartsSession')||'null')}catch{return null}}
@@ -750,6 +735,36 @@ function smartExtractForCalculator(text) {
   if (typeof smartExtract === 'function') return smartExtract(text);
   return [];
 }
+<\/script>
+
+
+<script id="login-handler-final">
+(function(){
+  const form=document.getElementById('loginForm');
+  if(!form) return;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const u=document.getElementById('loginUsername').value.trim();
+    const p=document.getElementById('loginPassword').value;
+    const users=(window.state && Array.isArray(window.state.users)) ? window.state.users : [];
+    const found=users.find(x =>
+      String(x.username||'').trim().toLowerCase()===u.toLowerCase() &&
+      String(x.password??'')===p
+    );
+    const err=document.getElementById('loginError');
+    if(!found){
+      err.textContent='اسم المستخدم أو كلمة المرور غير صحيحة';
+      err.style.display='block';
+      return;
+    }
+    err.style.display='none';
+    sessionStorage.setItem('carPartsSession', JSON.stringify({
+      id:found.id, username:found.username, display:found.display, role:found.role
+    }));
+    form.reset();
+    if(typeof auth==='function') auth();
+  });
+})();
 <\/script>
 
 </body></html>`;
