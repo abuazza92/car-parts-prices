@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>إدارة قطع السيارات</title>
@@ -36,6 +37,23 @@ function normalizeArabicDigits(value) {
     .replace(/٫/g, '.')
     .replace(/٬/g, ',');
 }
+
+$('loginForm').onsubmit=e=>{
+  e.preventDefault();
+  const u=$('loginUsername').value.trim();
+  const p=$('loginPassword').value;
+  const found=state.users.find(x=>String(x.username||'').trim().toLowerCase()===u.toLowerCase() && String(x.password??'')===p);
+  if(!found){
+    $('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';
+    $('loginError').style.display='block';
+    return;
+  }
+  $('loginError').style.display='none';
+  setSession(found);
+  $('loginForm').reset();
+  auth();
+};
+
 </script>
 
 
@@ -71,7 +89,7 @@ function normalizeArabicDigits(value) {
 </head>
 <body>
 
-<div id="loginScreen" style="display:none!important" class="auth">
+<div id="loginScreen"
   <div class="login-card">
     <div class="login-logo">ق</div>
     <h1>إدارة قطع السيارات</h1>
@@ -86,7 +104,7 @@ function normalizeArabicDigits(value) {
   </div>
 </div>
 
-<div id="app" style="display:block">
+<div id="app">
 <aside id="sidebar" class="sidebar">
   <div class="brand">إدارة قطع السيارات<small>نظام إدارة وتسعير قطع السيارات</small></div>
   <nav class="nav">
@@ -306,7 +324,7 @@ function normalizeArabicDigits(value) {
 
 <script>
 const KEY='carPartsUnifiedV2';
-const DEFAULT_USER={id:'admin',username:'Abuazza',password:'Qwer1992',display:'أبو عزة',role:'admin'};
+const DEFAULT_USER={id:'admin',username:'Abuazza',password:'050033',display:'أبو عزة',role:'admin'};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const num=s=>{s=String(s??'').replace(/,/g,'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));let m=s.match(/-?\d+(?:\.\d+)?/);return m?Number(m[0]):NaN};
@@ -337,14 +355,15 @@ function go(id){if(id==='users' && current()?.role!=='admin')return;document.que
 function current(){try{return JSON.parse(sessionStorage.getItem('carPartsSession')||'null')}catch{return null}}
 function setSession(u){sessionStorage.setItem('carPartsSession',JSON.stringify({id:u.id,username:u.username,display:u.display,role:u.role}))}
 function auth(){
-  // تم تعطيل تسجيل الدخول مؤقتاً بناءً على طلب المستخدم.
-  $('loginScreen').style.display='none';
-  $('app').style.display='block';
-  const s=current() || {display:'المستخدم',username:'Abuazza',role:'admin'};
-  if($('sideUser')) $('sideUser').textContent=s.display||s.username||'المستخدم';
-  if($('topUser')) $('topUser').textContent=s.display||s.username||'المستخدم';
-  if($('usersNav')) $('usersNav').style.display='block';
-  renderAll();
+  const s=current();
+  $('loginScreen').style.display=s?'none':'flex';
+  $('app').style.display=s?'block':'none';
+  if(s){
+    $('sideUser').textContent=s.display||s.username;
+    $('topUser').textContent=s.display||s.username;
+    $('usersNav').style.display=s.role==='admin'?'block':'none';
+    renderAll();
+  }
 }
 
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.screen));
@@ -723,7 +742,7 @@ function smartExtractArabicParts(rawText) {
   }
   return out;
 }
-</script>
+<\/script>
 
 
 <script>
@@ -731,7 +750,7 @@ function smartExtractForCalculator(text) {
   if (typeof smartExtract === 'function') return smartExtract(text);
   return [];
 }
-</script>
+<\/script>
 
 </body></html>`;
 
