@@ -63,10 +63,15 @@ function normalizeArabicDigits(value) {
 }
 </style>
 
+
+<style id="login-disabled-note">
+.login-disabled-note{font-size:12px;color:#64748b;margin-top:4px}
+</style>
+
 </head>
 <body>
 
-<div id="loginScreen" class="auth">
+<div id="loginScreen" style="display:none!important" class="auth">
   <div class="login-card">
     <div class="login-logo">ق</div>
     <h1>إدارة قطع السيارات</h1>
@@ -81,7 +86,7 @@ function normalizeArabicDigits(value) {
   </div>
 </div>
 
-<div id="app">
+<div id="app" style="display:block">
 <aside id="sidebar" class="sidebar">
   <div class="brand">إدارة قطع السيارات<small>نظام إدارة وتسعير قطع السيارات</small></div>
   <nav class="nav">
@@ -332,36 +337,16 @@ function go(id){if(id==='users' && current()?.role!=='admin')return;document.que
 function current(){try{return JSON.parse(sessionStorage.getItem('carPartsSession')||'null')}catch{return null}}
 function setSession(u){sessionStorage.setItem('carPartsSession',JSON.stringify({id:u.id,username:u.username,display:u.display,role:u.role}))}
 function auth(){
-  let s=current();
-  if(s && !state.users.some(x=>String(x.id)===String(s.id))){
-    sessionStorage.removeItem('carPartsSession');
-    s=null;
-  }
-  $('loginScreen').style.display=s?'none':'flex';
-  $('app').style.display=s?'block':'none';
-  if(s){
-    $('sideUser').textContent=s.display||s.username;
-    $('topUser').textContent=s.display||s.username;
-    $('usersNav').style.display=s.role==='admin'?'block':'none';
-    renderAll();
-  }
+  // تم تعطيل تسجيل الدخول مؤقتاً بناءً على طلب المستخدم.
+  $('loginScreen').style.display='none';
+  $('app').style.display='block';
+  const s=current() || {display:'المستخدم',username:'Abuazza',role:'admin'};
+  if($('sideUser')) $('sideUser').textContent=s.display||s.username||'المستخدم';
+  if($('topUser')) $('topUser').textContent=s.display||s.username||'المستخدم';
+  if($('usersNav')) $('usersNav').style.display='block';
+  renderAll();
 }
-$('loginForm').onsubmit=e=>{
-  e.preventDefault();
-  const u=$('loginUsername').value.trim();
-  const p=$('loginPassword').value;
-  const found=state.users.find(x=>String(x.username||'').trim().toLowerCase()===u.toLowerCase() && String(x.password??'')===p);
-  if(!found){
-    $('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';
-    $('loginError').style.display='block';
-    return;
-  }
-  $('loginError').style.display='none';
-  setSession(found);
-  $('loginForm').reset();
-  auth();
-};
-$('logout').onclick=()=>{sessionStorage.removeItem('carPartsSession');auth()};
+
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 $('menu').onclick=()=>$('sidebar').classList.toggle('open');
@@ -429,7 +414,6 @@ $('userForm').onsubmit=e=>{e.preventDefault();const username=$('newUser').value.
 
 function renderAll(){dash();renderParts();renderGlobal();renderExtract();renderUsers();$('defaultPct').value=state.pct;$('priceExample').value='100 ⟶ '+money(sale(100,state.pct))}
 auth();
-
 /* Smart extraction engine: local heuristic parser for many invoice/message formats.
    This is not a cloud LLM; it runs entirely in the browser and can be upgraded later
    to a real AI connector without changing the UI. */
