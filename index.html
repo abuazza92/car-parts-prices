@@ -27,6 +27,42 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 @media(max-width:650px){.content{padding:13px}.cards,.grid2,.form-grid,.price-grid{grid-template-columns:1fr}.top{padding:0 13px}.title{font-size:23px}.cards{gap:9px}}
 @media print{.sidebar,.top,.actions,.toolbar,#loginScreen{display:none!important}.main{margin:0}.screen{display:none!important}.screen.active{display:block!important}.panel,.card{border:0}}
 </style>
+
+<script>
+function normalizeArabicDigits(value) {
+  return String(value ?? '')
+    .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+    .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+    .replace(/٫/g, '.')
+    .replace(/٬/g, ',');
+}
+</script>
+
+
+<style id="smart-wide-box">
+#aiExtract .card textarea, #aiExtract textarea#aiText {
+  width: 100%;
+  min-height: 360px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+#aiExtract .card { width: 100%; }
+@media (min-width: 900px) {
+  #aiExtract .card textarea, #aiExtract textarea#aiText { min-height: 430px; }
+}
+</style>
+
+
+<style id="calculator-wide-box">
+#calculator textarea, #calculator #calcText,
+#priceCalc textarea, #priceCalc #calcText {
+  width: 100%;
+  min-height: 300px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+</style>
+
 </head>
 <body>
 
@@ -376,14 +412,52 @@ function aiLooksPart(s){
   if(!/[A-Za-z]/.test(s)) return false;
   return true;
 }
-function aiAdd(out,seen,part,price,confidence='واضح'){
+function aiCleanName(name){
+  name=String(name||'').trim();
+  name=name.replace(/^المنطقة\s*:\s*الجزء\s*:\s*القطعة\s*:\s*/,'');
+  name=name.replace(/\s*مرجع\s*القطعة\s*:?\s*$/i,'');
+  name=name.replace(/\s*رقم\s*المرجع\s*للقطعة\s*:?\s*$/i,'');
+  name=name.replace(/\s+/g,' ').trim();
+  if(!name || /^رقم\s*المرجع\s*للقطعة$/i.test(name)) return '';
+  return name;
+}
+function aiLooksName(s){
+  s=aiCleanName(s);
+  if(!s || s.length<2 || s.length>120) return false;
+  if(/^(رقم الحالة|الرقم المرجعي|تاريخ التقييم|مركز التقدير|نوع الحالة|موقع تقييم الحالة|رقم اللوحة|رقم التقرير|سنة الصنع|اللون|الموديل|الرقم التسلسلي للمركبة|رقم الهيكل|عداد المسافات|مكان الضرر|التكلفة الإجمالية|الكمية|القيمة|نسبة الخصم|التكلفة النهائية)$/i.test(s)) return false;
+  if(aiLooksPart(s)) return false;
+  if(/^(?:DA|MC)\d+$/i.test(s)) return false;
+  return /[\u0600-\u06FF]/.test(s) || /[A-Za-z]/.test(s);
+}
+function aiAdd(out,seen,part,price,confidence='واضح',name=''){
   part=String(part||'').trim();
   price=aiNumber(price);
+  name=aiCleanName(name);
   if(!aiLooksPart(part)||!Number.isFinite(price)) return;
   const key=part.toUpperCase();
   if(seen.has(key)) return;
   seen.add(key);
-  out.push({id:String(Date.now())+'_'+out.length,part,original:price,confidence});
+  out.push({id:String(Date.now())+'_'+out.length,part,original:price,name,confidence});
+}
+function aiPreviousName(lines,index){
+  for(let j=index-1;j>=Math.max(0,index-3);j--){
+    const x=aiCleanName(lines[j]);
+    if(aiLooksName(x)) return x;
+    if(aiLooksPart(lines[j]) || /رقم\s*(?:المرجع\s*)?للقطعة|القيمة|الكمية|نسبة\s*الخصم/i.test(lines[j])) break;
+  }
+  return '';
+}
+function aiStructuredName(lines,index){
+  // الاسم قد يكون في نفس السطر: "القطعة: ... مرجع القطعة:"
+  let x=lines[index].match(/القطعة\s*:\s*(.*?)\s*مرجع\s*القطعة\s*:?\s*$/i);
+  if(x && aiLooksName(x[1])) return aiCleanName(x[1]);
+  for(let j=index-1;j>=Math.max(0,index-4);j--){
+    x=lines[j].match(/القطعة\s*:\s*(.*?)(?:\s*مرجع\s*القطعة\s*:?)?$/i);
+    if(x && aiLooksName(x[1])) return aiCleanName(x[1]);
+    if(aiLooksName(lines[j])) return aiCleanName(lines[j]);
+    if(/^(?:رقم\s*المرجع\s*للقطعة|مرجع\s*القطعة)$/i.test(lines[j])) break;
+  }
+  return '';
 }
 function smartExtract(text){
   text=aiNormalize(text).replace(/\r/g,'');
@@ -391,16 +465,19 @@ function smartExtract(text){
   const out=[],seen=new Set();
 
   // 1) Direct assignment formats.
-  const direct=/^([A-Za-z0-9][A-Za-z0-9._\/-]{3,44})\s*(?:=|:|：|-|–|—|\bالسعر\b|\bprice\b)\s*([0-9][0-9,]*(?:\.[0-9]+)?)\s*$/i;
-  lines.forEach(line=>{
+  // IMPORTANT: '-' is a separator only when separated by spaces.
+  // A hyphen inside the part number remains part of the reference.
+  const direct=/^([A-Za-z0-9][A-Za-z0-9._\/-]{3,44})(?:\s*(?:=|:|：)\s*|\s+-\s+|\s+(?:السعر|price)\s*[:：]?\s*)([0-9][0-9,]*(?:\.[0-9]+)?)\s*$/i;
+  lines.forEach((line,idx)=>{
     let m=line.match(direct);
-    if(m) aiAdd(out,seen,m[1],m[2],'واضح');
-    // "PART 432" and "PART السعر: 432"
-    let m2=line.match(/^([A-Za-z0-9][A-Za-z0-9._\/-]{3,44})\s+(?:السعر\s*[:：]?\s*)?([0-9][0-9,]*(?:\.[0-9]+)?)$/i);
-    if(m2) aiAdd(out,seen,m2[1],m2[2],'محتمل');
+    if(m) aiAdd(out,seen,m[1],m[2],'واضح',aiPreviousName(lines,idx));
+    // "PART 432"
+    let m2=line.match(/^([A-Za-z0-9][A-Za-z0-9._\/-]{3,44})\s+([0-9][0-9,]*(?:\.[0-9]+)?)$/);
+    if(m2) aiAdd(out,seen,m2[1],m2[2],'محتمل',aiPreviousName(lines,idx));
   });
 
-  // 2) Structured invoice blocks: reference -> value, ignoring quantity/discount/final cost.
+  // 2) Structured estimate blocks: part reference -> value.
+  // Captures the part name and ignores quantity, discount and final cost.
   for(let i=0;i<lines.length;i++){
     if(/رقم\s*(?:المرجع\s*)?للقطعة|مرجع\s*القطعة|part\s*(?:no|number)|part\s*#/i.test(lines[i])){
       let part='';
@@ -408,6 +485,9 @@ function smartExtract(text){
         if(aiLooksPart(lines[j])){part=lines[j];break}
       }
       if(!part) continue;
+
+      const name=aiStructuredName(lines,i);
+
       let price=NaN;
       for(let j=i+1;j<Math.min(lines.length,i+18);j++){
         if(/رقم\s*(?:المرجع\s*)?للقطعة|مرجع\s*القطعة/i.test(lines[j])) break;
@@ -417,17 +497,16 @@ function smartExtract(text){
           price=aiNumber(lines[j+1]);break;
         }
       }
-      aiAdd(out,seen,part,price,'فاتورة');
+      aiAdd(out,seen,part,price,'فاتورة',name);
     }
   }
 
-  // 3) "part ... price" appearing on the same line with Arabic separators.
-  lines.forEach(line=>{
+  // 3) "part ... price" on the same line.
+  lines.forEach((line,idx)=>{
     const m=line.match(/([A-Za-z0-9][A-Za-z0-9._\/-]{3,44}).{0,25}?(?:القيمة|السعر|price|value)\s*[:：=]?\s*([0-9][0-9,]*(?:\.[0-9]+)?)/i);
-    if(m) aiAdd(out,seen,m[1],m[2],'محتمل');
+    if(m) aiAdd(out,seen,m[1],m[2],'محتمل',aiPreviousName(lines,idx));
   });
 
-  // 4) Avoid obvious VINs, quantities, discount percentages and final-cost lines.
   return out.filter(x=>!/^0*\.?\d+$/.test(x.part));
 }
 function renderAI(){
@@ -437,11 +516,12 @@ function renderAI(){
     <tr>
       <td>${i+1}</td>
       <td><input class="cell" data-aip="${r.id}" value="${esc(r.part)}"></td>
+      <td><input class="cell" data-ain="${r.id}" value="${esc(r.name||'')}"></td>
       <td><input class="cell" type="number" step="0.01" data-aiv="${r.id}" value="${r.original}"></td>
       <td><span class="badge">${esc(r.confidence)}</span></td>
       <td><button class="danger" data-aidel="${r.id}">حذف</button></td>
     </tr>`).join('')
-  : '<tr><td colspan="5" class="empty">لم يتم العثور على أرقام قطع وأسعار واضحة.</td></tr>';
+  : '<tr><td colspan="6" class="empty">لم يتم العثور على أرقام قطع وأسعار واضحة.</td></tr>';
   $('aiResultPanel').style.display='block';
   $('aiSummary').textContent=`تم التعرف على ${arr.length} نتيجة. تم تجاهل أرقام الشاصي والكميات والخصومات والتكلفة النهائية.`;
 }
@@ -457,12 +537,12 @@ $('aiClear').onclick=()=>{
 };
 $('aiFilter').oninput=renderAI;
 $('aiCopy').onclick=()=>{
-  const s=aiExtracted.map((r,i)=>`${i+1}. ${r.part} | السعر الأصلي: ${money(r.original)}`).join('\n');
+  const s=aiExtracted.map((r,i)=>`${i+1}. ${r.part} | ${r.name||'بدون اسم'} | السعر الأصلي: ${money(r.original)}`).join('\n');
   navigator.clipboard.writeText(s).then(()=>toast('تم نسخ النتائج'));
 };
 $('aiSave').onclick=()=>{
   aiExtracted.forEach(r=>state.parts.unshift({
-    id:String(Date.now())+Math.random(),part:r.part,name:'',brand:'',car:$('aiCarTitle').value.trim(),
+    id:String(Date.now())+Math.random(),part:r.part,name:r.name||'',brand:'',car:$('aiCarTitle').value.trim(),
     model:'',year:'',qty:1,original:r.original,alt:'',location:'',notes:'استخراج ذكي',pct:state.pct
   }));
   save(state);renderAll();toast('تم حفظ النتائج في قاعدة القطع');
@@ -472,6 +552,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{
   if(e.target.dataset.aip){const r=aiExtracted.find(x=>x.id===e.target.dataset.aip);if(r)r.part=e.target.value}
+  if(e.target.dataset.ain){const r=aiExtracted.find(x=>x.id===e.target.dataset.ain);if(r)r.name=e.target.value}
   if(e.target.dataset.aiv){const r=aiExtracted.find(x=>x.id===e.target.dataset.aiv);if(r){r.original=aiNumber(e.target.value);renderAI()}}
 });
 
@@ -491,7 +572,7 @@ function setPrivateData(rows) {
 function saveAIResultsToPrivateData() {
   // يدعم أكثر من اسم محتمل لمصفوفة نتائج الاستخراج في النسخ السابقة.
   const candidates = [
-    window.aiResults, window.extractedParts, window.smartResults,
+    aiExtracted, window.aiResults, window.extractedParts, window.smartResults,
     window.aiExtractedResults, window.currentAIResults
   ];
   let rows = candidates.find(x => Array.isArray(x));
@@ -500,8 +581,9 @@ function saveAIResultsToPrivateData() {
 
   const normalized = rows.map(r => ({
     partNumber: r.partNumber || r.part || r.number || r.code || '',
-    price: Number(r.price ?? r.originalPrice ?? r.value ?? 0),
-    vehicle: r.vehicle || r.model || r.car || document.getElementById('aiCarModel')?.value || '',
+    name: r.name || r.partName || r.description || '',
+    price: Number(normalizeArabicDigits(r.price ?? r.originalPrice ?? r.value ?? 0).replace(/,/g, '')),
+    vehicle: r.vehicle || r.model || r.car || document.getElementById('aiCarModel')?.value || document.getElementById('aiCarTitle')?.value || '',
     savedAt: new Date().toLocaleString('ar-SA')
   })).filter(r => r.partNumber && Number.isFinite(r.price));
 
@@ -530,6 +612,7 @@ function renderPrivateData() {
     <tr>
       <td>${i + 1}</td>
       <td>${escapeHtmlPrivate(r.partNumber)}</td>
+      <td>${escapeHtmlPrivate(r.name || '-')}</td>
       <td>${Number(r.price).toLocaleString('en-US', {maximumFractionDigits: 2})}</td>
       <td>${escapeHtmlPrivate(r.vehicle || '-')}</td>
       <td>${escapeHtmlPrivate(r.savedAt || '-')}</td>
@@ -570,6 +653,7 @@ function exportPrivateDataExcel() {
     <tr>
       <td>${i + 1}</td>
       <td>${escapeHtmlPrivate(r.partNumber)}</td>
+      <td>${escapeHtmlPrivate(r.name || '')}</td>
       <td>${Number(r.price).toFixed(2)}</td>
       <td>${escapeHtmlPrivate(r.vehicle || '')}</td>
       <td>${escapeHtmlPrivate(r.savedAt || '')}</td>
@@ -577,8 +661,53 @@ function exportPrivateDataExcel() {
 
   const xls = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"></head>
   <body><table border="1">
-  <tr><th>الرقم</th><th>رقم القطعة</th><th>السعر الأصلي</th><th>السيارة / الموديل</th><th>تاريخ الحفظ</th></tr>
-  ${table}</table></body></html>`;
+  <tr><th>الرقم</th><th>رقم القطعة</th><th>اسم القطعة</th><th>السعر الأصلي</th><th>السيارة / الموديل</th><th>تاريخ الحفظ</th></tr>
+  ${table}</table>
+<script>
+function smartExtractArabicParts(rawText) {
+  const text = normalizeArabicDigits(rawText || '');
+  const lines = text.split(/\r?\n/);
+  const out = [];
+  const seen = new Set();
+  const partRe = /^[A-Za-z0-9][A-Za-z0-9._/-]{4,30}$/;
+  const vinRe = /^[A-Za-z0-9]{15,20}$/;
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    let m = line.match(/^([A-Za-z0-9][A-Za-z0-9._/-]{4,30})\s*(?:=|:|-)\s*([0-9][0-9,]*(?:\.[0-9]+)?)$/);
+    if (!m) {
+      m = line.match(/^([A-Za-z0-9][A-Za-z0-9._/-]{4,30})\s+(?:السعر|price|value)\s*[:=]?\s*([0-9][0-9,]*(?:\.[0-9]+)?)$/i);
+    }
+    if (!m) {
+      m = line.match(/^([A-Za-z0-9][A-Za-z0-9._/-]{4,30})\s+([0-9][0-9,]*(?:\.[0-9]+)?)$/);
+    }
+
+    if (m) {
+      const part = m[1].toUpperCase();
+      if (!vinRe.test(part) && partRe.test(part)) {
+        const price = Number(m[2].replace(/,/g, ''));
+        if (Number.isFinite(price) && !seen.has(part)) {
+          seen.add(part);
+          out.push({partNumber: part, price});
+        }
+      }
+    }
+  }
+  return out;
+}
+</script>
+
+
+<script>
+function smartExtractForCalculator(text) {
+  if (typeof smartExtract === 'function') return smartExtract(text);
+  return [];
+}
+</script>
+
+</body></html>`;
 
   const blob = new Blob(['\ufeff', xls], {type:'application/vnd.ms-excel;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
