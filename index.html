@@ -310,15 +310,57 @@ function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{ret
 function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
 let state=load();
 state.parts=Array.isArray(state.parts)?state.parts:[];
-state.users=Array.isArray(state.users)&&state.users.length?state.users:[DEFAULT_USER];
+state.users=Array.isArray(state.users)?state.users:[];
+// إصلاح/ترحيل حساب الدخول الرئيسي تلقائياً حتى لا يتعطل بعد تحديث النسخة.
+const adminIndex=state.users.findIndex(x=>String(x.username||'').trim().toLowerCase()==='abuazza');
+if(adminIndex<0){
+  state.users.unshift({...DEFAULT_USER});
+}else{
+  state.users[adminIndex]={...state.users[adminIndex],
+    id:state.users[adminIndex].id||DEFAULT_USER.id,
+    username:'Abuazza',
+    password:DEFAULT_USER.password,
+    display:state.users[adminIndex].display||DEFAULT_USER.display,
+    role:'admin'
+  };
+}
 state.pct=Number.isFinite(Number(state.pct))?Number(state.pct):20;
 state.recent=Array.isArray(state.recent)?state.recent:[];
+save(state);
 function toast(t){const x=document.createElement('div');x.className='toast';x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),1700)}
 function go(id){if(id==='users' && current()?.role!=='admin')return;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));$('sidebar').classList.remove('open');renderAll()}
 function current(){try{return JSON.parse(sessionStorage.getItem('carPartsSession')||'null')}catch{return null}}
 function setSession(u){sessionStorage.setItem('carPartsSession',JSON.stringify({id:u.id,username:u.username,display:u.display,role:u.role}))}
-function auth(){const s=current();$('loginScreen').style.display=s?'none':'flex';$('app').style.display=s?'block':'none';if(s){$('sideUser').textContent=s.display||s.username;$('topUser').textContent=s.display||s.username;$('usersNav').style.display=s.role==='admin'?'block':'none';renderAll()}}
-$('loginForm').onsubmit=e=>{e.preventDefault();const u=$('loginUsername').value.trim(),p=$('loginPassword').value;const found=state.users.find(x=>x.username===u&&x.password===p);if(!found){$('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';$('loginError').style.display='block';return} $('loginError').style.display='none';setSession(found);$('loginForm').reset();auth()};
+function auth(){
+  let s=current();
+  if(s && !state.users.some(x=>String(x.id)===String(s.id))){
+    sessionStorage.removeItem('carPartsSession');
+    s=null;
+  }
+  $('loginScreen').style.display=s?'none':'flex';
+  $('app').style.display=s?'block':'none';
+  if(s){
+    $('sideUser').textContent=s.display||s.username;
+    $('topUser').textContent=s.display||s.username;
+    $('usersNav').style.display=s.role==='admin'?'block':'none';
+    renderAll();
+  }
+}
+$('loginForm').onsubmit=e=>{
+  e.preventDefault();
+  const u=$('loginUsername').value.trim();
+  const p=$('loginPassword').value;
+  const found=state.users.find(x=>String(x.username||'').trim().toLowerCase()===u.toLowerCase() && String(x.password??'')===p);
+  if(!found){
+    $('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';
+    $('loginError').style.display='block';
+    return;
+  }
+  $('loginError').style.display='none';
+  setSession(found);
+  $('loginForm').reset();
+  auth();
+};
 $('logout').onclick=()=>{sessionStorage.removeItem('carPartsSession');auth()};
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
