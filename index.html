@@ -31,12 +31,20 @@ td input{width:100%;border:1px solid var(--line);border-radius:7px;padding:7px;f
 .empty{text-align:center;color:var(--muted);padding:35px}.footer-note{font-size:11px;color:var(--muted);margin-top:14px;line-height:1.8}
 @media(max-width:850px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}}
 </style>
+<style>
+@media print{
+  body{background:white!important}
+  body>*{display:none!important}
+  #pdfPrintArea{display:block!important;direction:rtl;font-family:Tahoma,Arial,sans-serif;padding:25px}
+  @page{size:A4;margin:15mm}
+}
+</style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <div class="brand"><div class="logo">AI</div><div><h1>مستخرج بيانات الفواتير</h1><div class="sub">استخراج رقم القطعة والاسم والسعر وحساب زيادة 20%</div></div></div>
-  <button class="outline" onclick="exportCSV()">تصدير الداتا المخزنة</button>
+  <div class="actions" style="margin-top:0"><button class="outline" onclick="exportCSV()">تصدير الداتا المخزنة</button><button class="primary" onclick="exportPDF()">تصدير PDF</button></div>
 </header>
 
 <div class="grid">
@@ -167,7 +175,75 @@ function parseInvoiceText(raw){
     }
   }
 
-  // 2) Common labeled format:
+  // 2) Two-line automotive format:
+  //    اسم القطعة + رقم القطعة في نفس السطر
+  //    السعر في السطر التالي
+  for(let i=0;i<lines.length-1;i++){
+    const a=lines[i], b=lines[i+1];
+    if(isVehicleLine(a)) continue;
+    const m=a.match(/^(.+?)\s{2,}([A-Za-z0-9][A-Za-z0-9._/ -]{5,30})\s*$/);
+    if(m){
+      const price=parseMoney(b);
+      const code=m[2].trim();
+      const name=m[1].trim();
+      if(price!==null && /\d/.test(code) && code.length>=6){
+        pushItem(out,code,name,price);
+        i++;
+      }
+    }
+  }
+
+  // 3) DA Portal / Saudi appraisal format:
+  //    ... القطعة: DESCRIPTION مرجع القطعة :
+  //    رقم المرجع للقطعة: CODE
+  //    الكمية: 1
+  //    القيمة: 1644
+  //    نسبة الخصم: 10
+  //    التكلفة النهائية: 1479.60
+  // Extract the original "القيمة" as the base price.
+  for(let i=0;i<lines.length;i++){
+    const l=lines[i];
+    if(isVehicleLine(l)) continue;
+
+    // Description may be on the same line as the portal labels.
+    let desc="";
+    let dm=l.match(/(?:القطعة|Item)\s*[:：]\s*(.+?)(?=\s*مرجع\s*القطعة|\s*رقم\s*المرجع|\s*$)/i);
+    if(dm) desc=dm[1].trim();
+
+    // A reference code can occur on the same line or on the next few lines.
+    let code="";
+    let ci=-1;
+    let cm=l.match(/(?:رقم\s*المرجع\s*للقطعة|مرجع\s*القطعة)\s*[:：-]?\s*([A-Za-z0-9][A-Za-z0-9._/*+ -]{3,40})/i);
+    if(cm){ code=cm[1].trim(); ci=i; }
+    else if(/(?:رقم\s*المرجع\s*للقطعة|مرجع\s*القطعة)/i.test(l)){
+      for(let j=i+1;j<Math.min(i+4,lines.length);j++){
+        if(isVehicleLine(lines[j])) continue;
+        if(isPartCode(lines[j]) || /^[A-Za-z0-9][A-Za-z0-9._/*+ -]{3,40}$/.test(lines[j])){
+          code=lines[j].trim(); ci=j; break;
+        }
+      }
+    }
+
+    if(code){
+      // Search the next ~10 lines for the original value and final cost.
+      let value=null, finalCost=null;
+      for(let j=ci+1;j<Math.min(ci+12,lines.length);j++){
+        const q=lines[j];
+        let vm=q.match(/^(?:القيمة|Value)\s*[:：-]?\s*([0-9.,]+)/i);
+        if(vm) value=parseMoney(vm[1]);
+
+        let fm=q.match(/^(?:التكلفة\s*النهائية|Final\s*Cost|Final\s*Price)\s*[:：-]?\s*([0-9.,]+)/i);
+        if(fm) finalCost=parseMoney(fm[1]);
+
+        if(value!==null && finalCost!==null) break;
+      }
+      if(value!==null){
+        pushItem(out,code,desc,value);
+      }
+    }
+  }
+
+  // 4) Common labeled format:
   //    رقم المرجع للقطعة: CODE
   //    القيمة: 500
   //    التكلفة النهائية: 450.00
@@ -206,7 +282,7 @@ function parseInvoiceText(raw){
   }
   flush();
 
-  // 3) Remove duplicates created because the compact and labeled parsers
+  // 5) Remove duplicates created because the compact and labeled parsers
   //    can both recognize the same line.
   const unique=[];
   const seen=new Set();
@@ -250,6 +326,39 @@ function exportCSV(){
  const wb = XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(wb, ws, 'الداتا المخزنة');
  XLSX.writeFile(wb, 'الداتا_المخزنة.xlsx');
+}
+function exportPDF(){
+  const data=JSON.parse(localStorage.getItem(key)||'[]');
+  const source=results.length?results:data;
+  if(!source.length){alert('لا توجد بيانات لاستخراجها إلى PDF.');return}
+  const old=document.getElementById('pdfPrintArea'); if(old) old.remove();
+  const area=document.createElement('div');
+  area.id='pdfPrintArea';
+  area.innerHTML=`
+    <h1 style="margin:0 0 8px">تقرير قطع الغيار المستخرجة</h1>
+    <div style="margin-bottom:18px;color:#667085">تاريخ التقرير: ${new Date().toLocaleString('ar-SA')}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr>
+        <th style="border:1px solid #999;padding:8px">رقم القطعة</th>
+        <th style="border:1px solid #999;padding:8px">اسم القطعة</th>
+        <th style="border:1px solid #999;padding:8px">السعر الأساسي</th>
+        <th style="border:1px solid #999;padding:8px">السعر بعد 20%</th>
+      </tr></thead>
+      <tbody>${source.map(r=>`<tr>
+        <td style="border:1px solid #999;padding:8px">${esc(r.part)}</td>
+        <td style="border:1px solid #999;padding:8px">${esc(r.name)}</td>
+        <td style="border:1px solid #999;padding:8px">${money(r.price)}</td>
+        <td style="border:1px solid #999;padding:8px">${money(Number(r.price)*1.2)}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+    <div style="margin-top:18px;font-weight:bold">
+      الإجمالي الأساسي: ${money(source.reduce((a,r)=>a+Number(r.price||0),0))}
+      &nbsp;&nbsp; | &nbsp;&nbsp;
+      الإجمالي بعد 20%: ${money(source.reduce((a,r)=>a+Number(r.price||0)*1.2,0))}
+    </div>`;
+  document.body.appendChild(area);
+  window.print();
+  setTimeout(()=>area.remove(),1000);
 }
 function clearInput(){document.getElementById('text').value='';document.getElementById('file').value='';setStatus('تم المسح.');}
 document.getElementById('file').addEventListener('change',e=>{if(e.target.files[0])setStatus('تم اختيار: '+e.target.files[0].name)});
